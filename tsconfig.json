@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node", 
+    "target": "es6",
+    "allowJs": true, 
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "strict": true, 
+    "pretty": true, 
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "esModuleInterop": true, 
+    "typeRoots": [
+      "./src/types/express.d.ts",
+      "./node_modules/@types"
+    ]
+  },
+  "include": [
+    "./src/**/*"  
+  ],
+  "exclude": [
+    "node_modules",
+    "test"
+  ]
+}
