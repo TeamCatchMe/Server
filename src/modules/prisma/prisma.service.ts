@@ -1,12 +1,23 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  LoggerService,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { ApiConfigService } from 'src/config/services/api-config.service';
 
 @Injectable()
 export class PrismaService
-  extends PrismaClient
+  extends PrismaClient<Prisma.PrismaClientOptions, 'query' | 'error'>
   implements OnModuleInit, OnModuleDestroy
 {
-  constructor() {
+  constructor(
+    @Inject(Logger) private readonly logger: LoggerService,
+    private readonly apiConfigService: ApiConfigService,
+  ) {
     super({
       log: [
         { emit: 'event', level: 'query' },
@@ -14,10 +25,21 @@ export class PrismaService
         { emit: 'stdout', level: 'warn' },
         { emit: 'stdout', level: 'error' },
       ],
-      errorFormat: 'colorless',
+      errorFormat: 'pretty',
     });
   }
+
   async onModuleInit() {
+    if (this.apiConfigService.appConfig.env === 'development') {
+      this.$on('query', (event) => {
+        this.logger.verbose(event.query, event.duration);
+      });
+    }
+
+    this.$on('error', (event) => {
+      this.logger.verbose(event.target);
+    });
+
     await this.$connect();
   }
   async onModuleDestroy() {

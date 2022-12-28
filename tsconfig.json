@@ -26,13 +26,24 @@
     "typeRoots": [
       "./src/types/express.d.ts",
       "./node_modules/@types"
-    ]
+    ],
+    "paths": {
+      "@modules/v1": [ "src/modules/v1" ],
+      "@modules/v1/*": [ "src/modules/v1/*" ],
+      "@common": [ "src/common" ],
+      "@common/*": [ "src/common/*" ],
+      "@config": [ "src/config" ],
+      "@config/*": [ "src/config/*" ],
+      "@helper": [ "src/helper" ],
+      "@helper/*": [ "src/helper/*" ]
+    }
   },
   "include": [
-    "./src/**/*"  
+    "src/**/*",
+    "test"
   ],
   "exclude": [
     "node_modules",
-    "test"
+    "dist"
   ]
 }

@@ -1,15 +1,33 @@
+import { HttpExceptionFilter } from '@common/exceptions/http-exception.filter';
+import { swaggerSetup } from '@common/libraries/swagger';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { useContainer } from 'class-validator';
 import compression from 'compression';
+import { utilities, WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
-import { swaggerSetup } from './common/helpers/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter());
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: WinstonModule.createLogger({
+      transports: [
+        new winston.transports.Console({
+          level: process.env.NODE_ENV === 'production' ? 'info' : 'silly',
+          format: winston.format.combine(
+            winston.format.colorize({ all: true }),
+            winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            winston.format.align(),
+            utilities.format.nestLike('Catchme', {
+              prettyPrint: true,
+            }),
+          ),
+        }),
+      ],
+    }),
+  });
 
   const configService = app.get(ConfigService);
 
