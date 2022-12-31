@@ -24,7 +24,7 @@ jobs:
 
           #TODO 실제 릴리즈 이후 환경 변수 변경
           touch .env.development
-          echo "${{ secrets.MOMOF_KEYS }}" >> .env.development
+          echo "${{ secrets.CATCH_ME_KEYS }}" >> .env.development
 
       - name: 🐕 dependencies 설치, eslint를 통해 코드에 문제가 없는지 확인합니다.
         run: |
