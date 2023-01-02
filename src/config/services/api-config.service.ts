@@ -96,4 +96,12 @@ export class ApiConfigService {
       jwtRefreshExpiration: this.getString('JWT_REFRESH_EXPIRATION'),
     };
   }
+
+  //* Swagger
+  get swaggerAdminConfig() {
+    return {
+      adminUser: this.getString('SWAGGER_ADMIN_USER'),
+      adminPassword: this.getString('SWAGGER_ADMIN_PASSWORD'),
+    };
+  }
 }
