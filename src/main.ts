@@ -6,27 +6,12 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { useContainer } from 'class-validator';
 import compression from 'compression';
-import { utilities, WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
 import { AppModule } from './app.module';
+import { LoggerService } from './libraries/logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: WinstonModule.createLogger({
-      transports: [
-        new winston.transports.Console({
-          level: process.env.NODE_ENV === 'production' ? 'info' : 'silly',
-          format: winston.format.combine(
-            winston.format.colorize({ all: true }),
-            winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-            winston.format.align(),
-            utilities.format.nestLike('Catchme', {
-              prettyPrint: true,
-            }),
-          ),
-        }),
-      ],
-    }),
+    logger: new LoggerService(),
   });
 
   const configService = app.get(ConfigService);
