@@ -1,10 +1,23 @@
-import { ConflictException } from '@nestjs/common';
+import { ApiConfigService } from '@config/services/api-config.service';
+import { JwtHandlerService } from '@config/services/jwt-handler.service';
+import { UserRepositoryInterface } from '@modules/v1/user/interfaces/user-repository.interface';
+import { UserRepository } from '@modules/v1/user/user.repository';
+import { UserService } from '@modules/v1/user/user.service';
+import {
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { anyNumber, instance, mock, reset, when } from 'ts-mockito';
+import { anyNumber, anything, instance, mock, reset, when } from 'ts-mockito';
 
 describe('AuthService 테스트', () => {
   let service: AuthService;
+  let userService: UserService;
+  let jwtService: JwtHandlerService;
   let authRepository: AuthRepositoryInterface;
+  let userRepository: UserRepositoryInterface;
 
   enum AUTH_TYPE {
     LOGIN,
@@ -13,8 +26,10 @@ describe('AuthService 테스트', () => {
 
   beforeEach(async () => {
     authRepository = mock(AuthRepository);
+    userRepository = mock(UserRepository);
     let authRepositoryInstance = instance(authRepository);
-    service = new AuthService(authRepositoryInstance);
+    let userRepositoryInstance = instance(UserRepository);
+    service = new AuthService(authRepositoryInstance, userRepositoryInstance);
   });
 
   afterEach(async () => {
@@ -59,39 +74,143 @@ describe('AuthService 테스트', () => {
 
   describe(`✔️ 로그인 테스트`, () => {
     it(`로그인에 성공한 경우`, async () => {
-      when(await authRepository.updateRefreshToken(1)).thenReturn(
-        createUser({}),
+      when(await userRepository.findById(1)).thenReturn(createUser({ id: 1 }));
+      when(await authRepository.renewalRefreshToken(1)).thenReturn(
+        createUser({ refreshToken: 'new_refresh_token' }),
       );
 
       const result = await service.login(1);
 
-      expect(result.accessToken).toBeTruthy();
-      expect(result.refreshToken).toBeTruthy();
+      expect(result.accessToken).toBe('new_access_token');
+      expect(result.refreshToken).toBe('new_refresh_token');
+      expect(result.user).toBe(createUser({}));
       expect(result.type).toBe(AUTH_TYPE.LOGIN);
     });
 
-    it(`존재하지 않는 유저인 경우 NotFoundException이 발생한다.`, async () => {});
+    it(`존재하지 않는 유저인 경우 NotFoundException이 발생한다.`, async () => {
+      when(await authRepository.findById(1)).thenReturn();
 
-    it(`알 수 없는 서버 에러로 InternalServerException이 발생한다.`, async () => {});
+      const result = async () => {
+        await service.login(1);
+      };
+
+      expect(result).rejects.toThrowError(
+        new NotFoundException('존재하지 않는 유저 Id입니다.'),
+      );
+    });
   });
 
   describe(`✔️ 회원 탈퇴 테스트`, () => {
-    it(`회원 탈퇴에 성공한 경우`, async () => {});
+    it(`회원 탈퇴에 성공한 경우`, async () => {
+      userService = new UserService(instance(mock(UserRepository)));
 
-    it(`올바르지 않은 유저 토큰인 경우 UnauthorizedException이 발생한다.`, async () => {});
+      when(await userRepository.findById(1))
+        .thenReturn(createUser({ id: 1 }))
+        .thenReturn();
+      when(await authRepository.delete(1)).thenReturn();
 
-    it(`존재하지 않는 유저인 경우 NotFoundException이 발생한다.`, async () => {});
+      await service.withdraw(1);
+      const result = await userService.findUserById(1);
 
-    it(`알 수 없는 서버 에러로 InternalServerException이 발생한다.`, async () => {});
+      expect(result).toBeUndefined();
+    });
+
+    it(`존재하지 않는 유저인 경우 NotFoundException이 발생한다.`, async () => {
+      when(await userRepository.findById(1)).thenReturn();
+
+      const result = async () => {
+        await service.withdraw(1);
+      };
+
+      expect(result).rejects.toThrowError(
+        new NotFoundException('존재하지 않는 유저 Id입니다.'),
+      );
+    });
   });
 
   describe(`✔️ 토큰 재발급 테스트`, () => {
-    it(`회원 탈퇴에 성공한 경우`, async () => {});
-    it(`존재하지 않는 유저의 토큰인 경우 NotFoundException이 발생한다.`, async () => {});
-    it(`유효하지 않은 Access 토큰인 경우 UnauthorizedException이 발생한다.`, async () => {});
-    it(`유효하지 않은 Refresh 토큰인 경우 UnauthorizedException이 발생한다.`, async () => {});
-    it(`모든 토큰이 만료된 경우 UnauthorizedException이 발생한다.`, async () => {});
-    it(`알 수 없는 서버 에러로 InternalServerException이 발생한다.`, async () => {});
+    const jwtServiceInstance = instance(mock(JwtService));
+    const configServiceInstance = instance(mock(ApiConfigService));
+    jwtService = new JwtHandlerService(
+      jwtServiceInstance,
+      configServiceInstance,
+    );
+
+    let TEST_ACCESS_TOKEN = 'test_access_token';
+    let TEST_REFRESH_TOKEN = 'test_refresh_token';
+
+    it(`토큰 재발급에 성공한 경우`, async () => {
+      when(jwtService.verify(TEST_ACCESS_TOKEN)).thenReturn(-3);
+      when(jwtService.verify(TEST_REFRESH_TOKEN)).thenReturn(1);
+
+      when(authRepository.findByRefreshToken(TEST_REFRESH_TOKEN)).thenReturn(
+        createUser({ refresh_token: TEST_REFRESH_TOKEN }),
+      );
+      when(jwtService.getAccessToken(anything())).thenReturn(
+        'new_access_token',
+      );
+
+      const result = await service.renewalToken(
+        TEST_ACCESS_TOKEN,
+        TEST_REFRESH_TOKEN,
+      );
+
+      expect(result.accessToken).toBeTruthy();
+      expect(result.accessToken).not.toEqual(TEST_ACCESS_TOKEN);
+    });
+
+    it(`존재하지 않는 유저의 토큰인 경우 NotFoundException이 발생한다.`, async () => {
+      when(jwtService.verify(TEST_ACCESS_TOKEN)).thenReturn(-3);
+      when(jwtService.verify(TEST_REFRESH_TOKEN)).thenReturn(1);
+
+      when(authRepository.findByRefreshToken(TEST_REFRESH_TOKEN)).thenReturn();
+
+      const result = async () => {
+        await service.renewalToken(TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN);
+      };
+
+      expect(result).rejects.toThrowError(
+        new NotFoundException('존재하지 않는 유저의 토큰입니다.'),
+      );
+    });
+
+    it(`유효하지 않은 Access 토큰인 경우 UnauthorizedException이 발생한다.`, async () => {
+      when(jwtService.verify(TEST_ACCESS_TOKEN)).thenReturn(-2);
+
+      const result = async () => {
+        await service.renewalToken(TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN);
+      };
+
+      expect(result).rejects.toThrowError(
+        new UnauthorizedException('유효하지 않은 액세스 토큰입니다.'),
+      );
+    });
+
+    it(`유효하지 않은 Refresh 토큰인 경우 UnauthorizedException이 발생한다.`, async () => {
+      when(jwtService.verify(TEST_ACCESS_TOKEN)).thenReturn(-3);
+      when(jwtService.verify(TEST_REFRESH_TOKEN)).thenReturn(-2);
+
+      const result = async () => {
+        await service.renewalToken(TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN);
+      };
+
+      expect(result).rejects.toThrowError(
+        new UnauthorizedException('유효하지 않은 리프레시 토큰입니다.'),
+      );
+    });
+
+    it(`모든 토큰이 만료된 경우 UnauthorizedException이 발생한다.`, async () => {
+      when(jwtService.verify(TEST_ACCESS_TOKEN)).thenReturn(-3);
+      when(jwtService.verify(TEST_REFRESH_TOKEN)).thenReturn(-3);
+
+      const result = async () => {
+        await service.renewalToken(TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN);
+      };
+
+      expect(result).rejects.toThrowError(
+        new UnauthorizedException('모든 토큰이 만료되었습니다.'),
+      );
+    });
   });
 });
 
@@ -101,6 +220,7 @@ const createUser = (params: Partial<User>) => {
     uuid: params.uuid || '9999',
     provider: params.provider || 'social',
     nickname: params.nickname || 'testUser',
+    refresh_token: params.refresh_token || 'refresh_token',
     is_delete: params.is_delete || false,
     created_at: new Date(),
     updated_at: new Date(),
