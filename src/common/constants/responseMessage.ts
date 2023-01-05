@@ -12,14 +12,17 @@ export default {
   SIGNIN_SUCCESS: '로그인 성공',
   SIGNIN_FAIL: '로그인 실패',
   UNAUTHORIZED_SOCIAL: '유효하지 않은 소셜 유저입니다.',
+  ALREADY_SIGNED_USER: '이미 가입한 유저입니다.',
 
   //^ 토큰
   CREATE_TOKEN_SUCCESS: '토큰 재발급 성공',
   EXPIRED_TOKEN: '토큰이 만료되었습니다.',
   EXPIRED_ALL_TOKEN: '모든 토큰이 만료되었습니다.',
-  INVALID_TOKEN: '유효하지 않은 토큰입니다.',
+  INVALID_ACCESS_TOKEN: '유효하지 않은 액세스 토큰입니다.',
+  INVALID_REFRESH_TOKEN: '유효하지 않은 리프레시 토큰입니다.',
   VALID_TOKEN: '유효한 토큰입니다.',
   EMPTY_TOKEN: '토큰 값이 없습니다.',
+  NO_USER_TOKEN: '존재하지 않는 유저의 토큰입니다.',
   UPDATE_DEVICE_TOKEN_SUCCESS: '디바이스 토큰 등록 성공',
   UPDATE_DEVICE_TOKEN_FAIL: '디바이스 토큰 등록 실패',
 
@@ -43,6 +46,7 @@ export default {
   NO_BLOCKED_USER: '차단한 유저가 아닙니다.',
   UNAUTHORIZED_USER: '유효하지 않은 유저입니다.',
   NO_USER: '탈퇴했거나 가입하지 않은 유저입니다.',
+  NO_USER_ID: '존재하지 않는 유저 Id입니다.',
   SEARCH_USER_FAIL: '해당 닉네임을 포함하는 유저가 존재하지 않습니다.',
   UPDATE_USER_DEVICE: '유저 디바이스 등록 성공',
 };

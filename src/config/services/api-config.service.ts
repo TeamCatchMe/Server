@@ -7,7 +7,7 @@ export class ApiConfigService {
   constructor(private configService: ConfigService) {}
 
   //^ .env 값 접근
-  private get(key: string): string {
+  get(key: string): string {
     const value = this.configService.get<string>(key);
 
     if (isNil(value)) {

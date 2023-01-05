@@ -8,6 +8,12 @@ import { SocialPlatform } from './common/auth.type';
 export default class AuthRepository implements AuthRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findByRefreshToken(refreshToken: string): Promise<User> {
+    return await this.prisma.user.findUnique({
+      where: { refresh_token: refreshToken },
+    });
+  }
+
   async findByUuid(uuid: string): Promise<User> {
     return await this.prisma.user.findUnique({
       where: {
@@ -20,13 +26,25 @@ export default class AuthRepository implements AuthRepositoryInterface {
     provider: SocialPlatform,
     uuid: string,
     nickname: string,
+    refreshToken: string,
   ): Promise<User> {
     return await this.prisma.user.create({
       data: {
         provider,
         uuid,
         nickname,
+        refresh_token: refreshToken,
       },
+    });
+  }
+
+  async updateRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<User> {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: { refresh_token: refreshToken },
     });
   }
 

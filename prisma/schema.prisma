@@ -62,6 +62,7 @@ model User {
   created_at                  DateTime @default(now())
   is_delete                   Boolean  @default(false)
   updated_at                  DateTime @default(now()) @updatedAt
+  refresh_token               String   @unique(map: "user_refresh_token_uindex") @db.VarChar(500)
   Block_Block_user_idToUser   Block[]  @relation("Block_user_idToUser")
   Block_Block_target_idToUser Block[]  @relation("Block_target_idToUser")
   Report                      Report[]
