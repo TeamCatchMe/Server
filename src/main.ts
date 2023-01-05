@@ -1,10 +1,10 @@
+import { LoggerService } from '@common/libraries/logger.service';
 import { ApiConfigService } from '@config/services/api-config.service';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppConfig } from './app.config';
 import { AppModule } from './app.module';
-import { LoggerService } from './libraries/logger.service';
 
 async function bootstrap() {
   const nestExpressServer = await NestFactory.create<NestExpressApplication>(

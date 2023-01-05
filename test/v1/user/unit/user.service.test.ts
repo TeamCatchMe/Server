@@ -116,6 +116,7 @@ const createUser = (params: Partial<User>) => {
     uuid: params.uuid || '9999',
     provider: params.provider || 'social',
     nickname: params.nickname || 'testUser',
+    refresh_token: params.refresh_token || 'refresh_token',
     is_delete: params.is_delete || false,
     created_at: new Date(),
     updated_at: new Date(),
