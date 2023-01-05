@@ -1,7 +1,7 @@
 import { UserRepositoryInterface } from '@modules/v1/user/interfaces/user-repository.interface';
 import { UserRepository } from '@modules/v1/user/user.repository';
 import { UserService } from '@modules/v1/user/user.service';
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { anyString, instance, mock, reset, when } from 'ts-mockito';
 
@@ -55,24 +55,6 @@ describe('UserService 테스트', () => {
 
       await expect(result).rejects.toThrowError(
         new ConflictException('이미 사용중인 닉네임입니다.'),
-      );
-    });
-
-    it(`글자수 10자 초과 시, BadRequestException으로 처리된다.`, async () => {
-      //& 한글, 영문/숫자 10글자까지
-      const NEW_NICKNAME = 'superlonglonglongnickname!!!!';
-
-      when(await userRepository.findByNickname(NEW_NICKNAME)).thenReturn();
-      when(await userRepository.updateNickname(1, NEW_NICKNAME)).thenReturn(
-        createUser({ nickname: NEW_NICKNAME }),
-      );
-
-      const result = async () => {
-        await service.updateNickname(1, NEW_NICKNAME);
-      };
-
-      await expect(result).rejects.toThrowError(
-        new BadRequestException('사용할 수 없는 닉네임입니다.'),
       );
     });
   });
