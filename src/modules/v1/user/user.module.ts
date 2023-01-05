@@ -4,13 +4,13 @@ import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
 
-const userRepositoryProvider = {
+const UserRepositoryProvider = {
   provide: USER_REPOSITORY,
   useClass: UserRepository,
 };
 
 @Module({
   controllers: [UserController],
-  providers: [userRepositoryProvider, UserService, Logger],
+  providers: [UserRepositoryProvider, UserService, Logger],
 })
 export class UserModule {}
