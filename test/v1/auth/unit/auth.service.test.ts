@@ -1,4 +1,3 @@
-import { ApiConfigService } from '@config/services/api-config.service';
 import { JwtHandlerService } from '@config/services/jwt-handler.service';
 import { AuthRepositoryInterface } from '@modules/v1/auth/auth.interface';
 import AuthRepository from '@modules/v1/auth/auth.repository';
@@ -26,7 +25,6 @@ describe('AuthService 테스트', () => {
   let service: AuthService;
   let userService: UserService;
   let jwt: JwtHandlerService;
-  let configService: ApiConfigService;
   let authRepository: AuthRepositoryInterface;
   let userRepository: UserRepositoryInterface;
 
