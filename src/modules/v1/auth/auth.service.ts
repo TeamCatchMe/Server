@@ -15,6 +15,7 @@ import {
 import { AuthRepositoryInterface, AUTH_REPOSITORY } from './auth.interface';
 import { authStrategy } from './common/auth.strategy';
 import { AUTH, SocialPlatform } from './common/auth.type';
+import { AuthTokenGetResDTO } from './dto/auth-token-get.res.dto';
 import { AuthResponseDTO } from './dto/auth.res.dto';
 
 @Injectable()
@@ -80,7 +81,9 @@ export class AuthService {
 
       const user = await this.authRepository.findByRefreshToken(refreshToken);
       if (!user) throw new NotFoundException(rm.NO_USER_TOKEN);
-      return this.jwt.getAccessToken(user);
+
+      const newAccessToken = this.jwt.getAccessToken(user);
+      return new AuthTokenGetResDTO(newAccessToken);
     }
 
     const user = await this.userRepository.findById(decodedAccessToken.id);
