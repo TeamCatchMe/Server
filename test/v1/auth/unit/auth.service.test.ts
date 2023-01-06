@@ -129,14 +129,16 @@ describe('AuthService 테스트', () => {
     let TEST_REFRESH_TOKEN = 'test_refresh_token';
 
     it(`로그인에 성공한 경우`, async () => {
-      when(await userRepository.findById(1)).thenReturn(createUser({ id: 1 }));
+      when(await authRepository.findByUuid('1')).thenReturn(
+        createUser({ id: 1, uuid: '1' }),
+      );
       when(jwt.getAccessToken(anything())).thenReturn(TEST_ACCESS_TOKEN);
       when(jwt.getRefreshToken()).thenReturn(TEST_REFRESH_TOKEN);
       when(
         await authRepository.updateRefreshToken(1, TEST_REFRESH_TOKEN),
       ).thenReturn(createUser({ id: 1, refresh_token: TEST_REFRESH_TOKEN }));
 
-      const result = await service.login(1);
+      const result = await service.login('1');
 
       expect(result.getAccessToken).toBe(TEST_ACCESS_TOKEN);
       expect(result.getRefreshToken).toBe(TEST_REFRESH_TOKEN);
@@ -144,14 +146,14 @@ describe('AuthService 테스트', () => {
     });
 
     it(`존재하지 않는 유저인 경우 NotFoundException이 발생한다.`, async () => {
-      when(await userRepository.findById(1)).thenReturn();
+      when(await authRepository.findByUuid('1')).thenReturn();
 
       const result = async () => {
-        await service.login(1);
+        await service.login('1');
       };
 
       expect(result).rejects.toThrowError(
-        new NotFoundException('존재하지 않는 유저 Id입니다.'),
+        new NotFoundException('존재하지 않는 유저의 uuid 값입니다.'),
       );
     });
   });

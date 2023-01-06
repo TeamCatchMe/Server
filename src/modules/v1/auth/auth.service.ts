@@ -27,9 +27,9 @@ export class AuthService {
     private readonly jwt: JwtHandlerService,
   ) {}
 
-  async login(userId: number) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) throw new NotFoundException(rm.NO_USER_ID);
+  async login(uuid: string) {
+    const user = await this.authRepository.findByUuid(uuid);
+    if (!user) throw new NotFoundException(rm.NO_USER_UUID);
 
     const jwtPayload: JwtPayload = { ...user };
     const newAccessToken = this.jwt.getAccessToken(jwtPayload);

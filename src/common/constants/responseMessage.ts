@@ -47,6 +47,7 @@ export default {
   UNAUTHORIZED_USER: '유효하지 않은 유저입니다.',
   NO_USER: '탈퇴했거나 가입하지 않은 유저입니다.',
   NO_USER_ID: '존재하지 않는 유저 Id입니다.',
+  NO_USER_UUID: '존재하지 않는 유저의 uuid 값입니다.',
   SEARCH_USER_FAIL: '해당 닉네임을 포함하는 유저가 존재하지 않습니다.',
   UPDATE_USER_DEVICE: '유저 디바이스 등록 성공',
 };
