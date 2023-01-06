@@ -107,6 +107,21 @@ describe('AuthService 테스트', () => {
         new ConflictException('이미 가입한 유저입니다.'),
       );
     });
+
+    it(`이미 사용중인 닉네임으로 회원가입을 시도한 경우 ConflictException이 발생한다.`, async () => {
+      when(await authRepository.findByUuid(TEST_UUID)).thenReturn();
+      when(await userRepository.findByNickname(TEST_NICKNAME)).thenReturn(
+        createUser({ nickname: TEST_NICKNAME }),
+      );
+
+      const result = async () => {
+        await service.signup(SOCIAL, TEST_UUID, TEST_NICKNAME);
+      };
+
+      expect(result).rejects.toThrowError(
+        new ConflictException('이미 사용중인 닉네임입니다.'),
+      );
+    });
   });
 
   describe(`✔️ 로그인 테스트`, () => {

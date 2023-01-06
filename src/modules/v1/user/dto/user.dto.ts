@@ -1,3 +1,4 @@
+import { SocialPlatform } from '@modules/v1/auth/common/auth.type';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsDate, IsNumber, IsString } from 'class-validator';
 
@@ -15,7 +16,7 @@ export class UserDTO {
 
   @ApiProperty()
   @IsString()
-  provider: string;
+  provider: SocialPlatform;
 
   @ApiProperty()
   @IsString()

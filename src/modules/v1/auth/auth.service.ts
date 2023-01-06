@@ -13,6 +13,7 @@ import {
   USER_REPOSITORY,
 } from '../user/interfaces/user-repository.interface';
 import { AuthRepositoryInterface, AUTH_REPOSITORY } from './auth.interface';
+import { authStrategy } from './common/auth.strategy';
 import { AUTH, SocialPlatform } from './common/auth.type';
 import { AuthResponseDTO } from './dto/auth.res.dto';
 
@@ -45,6 +46,9 @@ export class AuthService {
     const newRefreshToken = this.jwt.getRefreshToken();
     const existedUser = this.authRepository.findByUuid(uuid);
     if (existedUser) throw new ConflictException(rm.ALREADY_SIGNED_USER);
+
+    const alreadyUsedNickname = this.userRepository.findByNickname(nickname);
+    if (alreadyUsedNickname) throw new ConflictException(rm.ALREADY_USER_NAME);
 
     const user = await this.authRepository.create(
       social,
@@ -88,5 +92,10 @@ export class AuthService {
     if (!user) throw new NotFoundException(rm.NO_USER_ID);
 
     await this.authRepository.delete(userId);
+  }
+
+  async getUuidFromSocialToken(social: SocialPlatform, token: string) {
+    const user = await authStrategy[social].execute(token);
+    return user;
   }
 }
