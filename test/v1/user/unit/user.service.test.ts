@@ -37,8 +37,8 @@ describe('UserService 테스트', () => {
       const input = createUser({ nickname: NEW_NICKNAME });
       const result = await service.updateNickname(1, NEW_NICKNAME);
 
-      expect(input.nickname).toBe(result.nickname);
-      expect(input.id).toBe(result.id);
+      expect(input.nickname).toBe(result.getNickname);
+      expect(input.id).toBe(result.getId);
     });
 
     it(`이미 사용중인 닉네임인 경우 ConflictException으로 처리된다.`, async () => {
