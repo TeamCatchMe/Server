@@ -32,7 +32,8 @@ export class auth {
       const user = jwt.decode(appleAccessToken);
       const uuid = user.sub as string;
 
-      if (!uuid || !user) throw new UnauthorizedException(rm.UNAUTHORIZED_SOCIAL);
+      if (!uuid || !user)
+        throw new UnauthorizedException(rm.UNAUTHORIZED_SOCIAL);
 
       return uuid.toString();
     } catch (error) {
@@ -42,13 +43,36 @@ export class auth {
     }
   }
 
+  //* 네이버 OAuth 통신
+  async naverAuth(naverAccessToken: string): Promise<string> {
+    try {
+      const user = await axios({
+        method: 'get',
+        url: 'https://openapi.naver.com/v1/nid/me',
+        headers: {
+          Authorization: `Bearer ${naverAccessToken}`,
+        },
+      });
+
+      const uuid = user.data.response.id;
+
+      if (!uuid) throw new UnauthorizedException(rm.UNAUTHORIZED_SOCIAL);
+
+      return uuid.toString();
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException(rm.SIGNIN_FAIL);
+    }
+  }
+
   //* 구글 OAuth 통신
   async googleAuth(googleAccessToken: string): Promise<string> {
     try {
       const user = jwt.decode(googleAccessToken);
       const uuid = user.sub as string;
 
-      if (!uuid || !user) throw new UnauthorizedException(rm.UNAUTHORIZED_SOCIAL);
+      if (!uuid || !user)
+        throw new UnauthorizedException(rm.UNAUTHORIZED_SOCIAL);
 
       return uuid.toString();
     } catch (error) {

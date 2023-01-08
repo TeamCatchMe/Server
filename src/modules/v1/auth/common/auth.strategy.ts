@@ -1,5 +1,5 @@
-import { AuthType, SocialAuthStrategy } from './auth.type';
 import { auth } from '../config/auth.config';
+import { AuthType, SocialAuthStrategy } from './auth.type';
 
 class GoogleAuthStrategy implements SocialAuthStrategy {
   constructor(private readonly auth: auth) {}
@@ -23,8 +23,16 @@ class AppleAuthStrategy implements SocialAuthStrategy {
   }
 }
 
+class NaverAuthStrategy implements SocialAuthStrategy {
+  constructor(private readonly auth: auth) {}
+  execute(accessToken: string): Promise<string> {
+    return this.auth.naverAuth(accessToken);
+  }
+}
+
 export const authStrategy: AuthType = {
   kakao: new KakaoAuthStrategy(new auth()),
   apple: new AppleAuthStrategy(new auth()),
   google: new GoogleAuthStrategy(new auth()),
+  naver: new NaverAuthStrategy(new auth()),
 };

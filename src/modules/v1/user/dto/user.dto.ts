@@ -31,8 +31,8 @@ export class UserDTO {
     required: true,
   })
   @IsString({ message: '소셜 값은 문자여야 합니다.' })
-  @IsIn(['kakao', 'apple', 'google'], {
-    message: `소셜 값은 'kakao', 'apple', 'google'만 사용 가능합니다.`,
+  @IsIn(['kakao', 'apple', 'naver', 'google'], {
+    message: `소셜 값은 'kakao', 'apple', 'naver', 'google'만 사용 가능합니다.`,
   })
   @IsNotEmpty({ message: '소셜 값은 필수입니다.' })
   provider: SocialPlatform;
