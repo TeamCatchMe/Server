@@ -45,10 +45,12 @@ export class AuthService {
 
   async signup(social: SocialPlatform, uuid: string, nickname: string) {
     const newRefreshToken = this.jwt.getRefreshToken();
-    const existedUser = this.authRepository.findByUuid(uuid);
+    const existedUser = await this.authRepository.findByUuid(uuid);
     if (existedUser) throw new ConflictException(rm.ALREADY_SIGNED_USER);
 
-    const alreadyUsedNickname = this.userRepository.findByNickname(nickname);
+    const alreadyUsedNickname = await this.userRepository.findByNickname(
+      nickname,
+    );
     if (alreadyUsedNickname) throw new ConflictException(rm.ALREADY_USER_NAME);
 
     const user = await this.authRepository.create(

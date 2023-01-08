@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AUTH_REPOSITORY } from './auth.interface';
 import AuthRepository from './auth.repository';
 import { AuthService } from './auth.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 const AuthRepositoryProvider = {
   provide: AUTH_REPOSITORY,
@@ -22,6 +23,7 @@ const UserRepositoryProvider = {
     UserRepositoryProvider,
     AuthService,
     Logger,
+    JwtStrategy,
   ],
 })
 export class AuthModule {}

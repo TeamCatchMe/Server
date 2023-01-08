@@ -6,6 +6,6 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './modules/prisma/prisma.module';
 
 @Module({
-  imports: [ConfigurationModule, PrismaModule, CommonModule, V1Module],
+  imports: [ConfigurationModule, CommonModule, PrismaModule, V1Module],
 })
 export class AppModule {}
