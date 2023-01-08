@@ -1,5 +1,6 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
+import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import {
   Body,
   Controller,
@@ -7,13 +8,15 @@ import {
   Logger,
   LoggerService,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserNicknamePatchReqDTO } from './dto/user-nickname.patch.req.dto';
 import { UserService } from './user.service';
 
+@ApiTags('User API')
 @Controller('user')
-@ApiTags('유저 API')
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly userService: UserService,

@@ -13,7 +13,9 @@ import {
   USER_REPOSITORY,
 } from '../user/interfaces/user-repository.interface';
 import { AuthRepositoryInterface, AUTH_REPOSITORY } from './auth.interface';
+import { authStrategy } from './common/auth.strategy';
 import { AUTH, SocialPlatform } from './common/auth.type';
+import { AuthTokenGetResDTO } from './dto/auth-token-get.res.dto';
 import { AuthResponseDTO } from './dto/auth.res.dto';
 
 @Injectable()
@@ -26,9 +28,9 @@ export class AuthService {
     private readonly jwt: JwtHandlerService,
   ) {}
 
-  async login(userId: number) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) throw new NotFoundException(rm.NO_USER_ID);
+  async login(uuid: string) {
+    const user = await this.authRepository.findByUuid(uuid);
+    if (!user) throw new NotFoundException(rm.NO_USER_UUID);
 
     const jwtPayload: JwtPayload = { ...user };
     const newAccessToken = this.jwt.getAccessToken(jwtPayload);
@@ -43,8 +45,13 @@ export class AuthService {
 
   async signup(social: SocialPlatform, uuid: string, nickname: string) {
     const newRefreshToken = this.jwt.getRefreshToken();
-    const existedUser = this.authRepository.findByUuid(uuid);
+    const existedUser = await this.authRepository.findByUuid(uuid);
     if (existedUser) throw new ConflictException(rm.ALREADY_SIGNED_USER);
+
+    const alreadyUsedNickname = await this.userRepository.findByNickname(
+      nickname,
+    );
+    if (alreadyUsedNickname) throw new ConflictException(rm.ALREADY_USER_NAME);
 
     const user = await this.authRepository.create(
       social,
@@ -76,7 +83,9 @@ export class AuthService {
 
       const user = await this.authRepository.findByRefreshToken(refreshToken);
       if (!user) throw new NotFoundException(rm.NO_USER_TOKEN);
-      return this.jwt.getAccessToken(user);
+
+      const newAccessToken = this.jwt.getAccessToken(user);
+      return new AuthTokenGetResDTO(newAccessToken);
     }
 
     const user = await this.userRepository.findById(decodedAccessToken.id);
@@ -88,5 +97,10 @@ export class AuthService {
     if (!user) throw new NotFoundException(rm.NO_USER_ID);
 
     await this.authRepository.delete(userId);
+  }
+
+  async getUuidFromSocialToken(social: SocialPlatform, token: string) {
+    const user = await authStrategy[social].execute(token);
+    return user;
   }
 }
