@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { USER_REPOSITORY } from '../user/interfaces/user-repository.interface';
 import { UserRepository } from '../user/user.repository';
 import { AuthController } from './auth.controller';
@@ -22,7 +22,6 @@ const UserRepositoryProvider = {
     AuthRepositoryProvider,
     UserRepositoryProvider,
     AuthService,
-    Logger,
     JwtStrategy,
   ],
 })

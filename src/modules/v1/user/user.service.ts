@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { UserPatchNicknameResponseDTO } from './dto/user-nickname.patch.res.dto';
 
 import {
   UserRepositoryInterface,
@@ -42,7 +43,7 @@ export class UserService {
     }
 
     const user = await this.userRepository.updateNickname(userId, nickname);
-    return user;
+    return new UserPatchNicknameResponseDTO(user);
   }
 
   async checkDuplicateNickname(nickname: string) {

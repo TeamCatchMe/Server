@@ -1,41 +1,100 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
+import { UserDuplicateCheckSuccess } from '@common/constants/swagger/domain/user/UserDuplicateCheckSuccess';
+import { UserPatchNicknameSuccess } from '@common/constants/swagger/domain/user/UserPatchNicknameSuccess';
+import { ConflictError } from '@common/constants/swagger/error/ConflictError';
+import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
+import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
+import { Token } from '@common/decorators/token.decorator';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import {
   Body,
   Controller,
-  Inject,
-  Logger,
-  LoggerService,
+  Get,
+  InternalServerErrorException,
   Patch,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { UserNicknamePatchReqDTO } from './dto/user-nickname.patch.req.dto';
+import { UserPatchNicknameResponseDTO } from './dto/user-nickname.patch.res.dto';
+import { UserNicknameQueryDTO } from './dto/user-nickname.query.dto';
+import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 
 @ApiTags('User API')
 @Controller('user')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth('Authorization')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    @Inject(Logger) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  @Patch()
+  //todo 닉네임 변경
+  @ApiOperation({
+    summary: '닉네임을 변경합니다.',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '닉네임 변경에 성공했습니다.',
+    type: UserPatchNicknameSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiConflictResponse({
+    description: '이미 사용중인 닉네임입니다.',
+    type: ConflictError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Patch('nickname')
   async updateNickname(
-    // @Token() user: UserDTO,
+    @Token() user: UserDTO,
     @Body() dto: UserNicknamePatchReqDTO,
+  ): Promise<ResponseEntity<UserPatchNicknameResponseDTO>> {
+    const data = await this.userService.updateNickname(user.id, dto.nickname);
+    return ResponseEntity.OK_WITH_DATA(rm.UPDATE_USER_SUCCESS, data);
+  }
+
+  //todo 닉네임 중복체크
+  @ApiOperation({
+    summary: '닉네임 중복 체크를 진행합니다.',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '닉네임 중복 체크에 성공했습니다.',
+    type: UserDuplicateCheckSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiConflictResponse({
+    description: '이미 사용중인 닉네임입니다.',
+    type: ConflictError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get('nickname')
+  async checkDuplicateNickname(
+    @Query() query: UserNicknameQueryDTO,
   ): Promise<ResponseEntity<string>> {
-    try {
-      await this.userService.updateNickname(1, dto.nickname);
-      return ResponseEntity.OK_WITH(rm.UPDATE_USER_SUCCESS);
-    } catch (error) {
-      this.logger.error(`
-        user: ${JSON.stringify('test')},
-        dto: ${JSON.stringify(dto)},
-        `);
-    }
+    const data = await this.userService.checkDuplicateNickname(query.nickname);
+    if (!data) throw new InternalServerErrorException(rm.INTERNAL_SERVER_ERROR);
+    return ResponseEntity.OK_WITH(rm.CHECK_USER_NAME_SUCCESS);
   }
 }

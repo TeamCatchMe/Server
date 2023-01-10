@@ -18,9 +18,6 @@ import {
   Delete,
   Get,
   Headers,
-  Inject,
-  Logger,
-  LoggerService,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -46,10 +43,7 @@ import { AuthResponseDTO } from './dto/auth.res.dto';
 @Controller('auth')
 @ApiTags('Auth API')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    @Inject(Logger) private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   //todo 소셜 회원가입
   @ApiOperation({
