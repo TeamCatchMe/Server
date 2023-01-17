@@ -1,6 +1,8 @@
 import BaseRepositoryInterface from '@common/interfaces/base-repository.interface';
 import { Character } from '@prisma/client';
 
+export const CHARACTER_REPOSITORY = 'CHARACTER REPOSITORY';
+
 export interface CharacterRepositoryInterface
   extends BaseRepositoryInterface<Character> {
   findByCharacterName(name: string): Promise<Character>;

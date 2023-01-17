@@ -52,5 +52,6 @@ export default {
   UPDATE_USER_DEVICE: '유저 디바이스 등록 성공',
 
   //^캐츄
+  CREATE_CHARACTER_SUCCESS: '캐츄 생성 성공',
   ALREADY_CHARACTER_NAME: '이미 사용중인 캐츄 이름입니다.',
 };

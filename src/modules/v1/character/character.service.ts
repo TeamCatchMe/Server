@@ -6,12 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { CharacterRepositoryInterface } from './interfaces/character-repository.interface';
+import {
+  CharacterRepositoryInterface,
+  CHARACTER_REPOSITORY,
+} from './interfaces/character-repository.interface';
 
 @Injectable()
 export class CharacterService {
   constructor(
-    @Inject()
+    @Inject(CHARACTER_REPOSITORY)
     private readonly characterRepository: CharacterRepositoryInterface,
   ) {}
 
@@ -19,7 +22,7 @@ export class CharacterService {
     userId: number,
     name: string,
     type: number,
-    privacy: boolean,
+    is_public: boolean,
   ) {
     const alreadyUsedCharacterName =
       await this.characterRepository.findByCharacterName(name);
@@ -32,7 +35,7 @@ export class CharacterService {
       userId,
       name,
       type,
-      privacy,
+      is_public,
     );
     return character;
   }

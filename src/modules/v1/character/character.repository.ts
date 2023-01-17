@@ -22,8 +22,7 @@ export default class CharacterRepository
   }
 
   async findByCharacterName(): Promise<Character> {
-    // return await this.prisma.character.findMany();
-    return;
+    return await this.prisma.character.findUnique({ where: {} });
   }
 
   async create(
