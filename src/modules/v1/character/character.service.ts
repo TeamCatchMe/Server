@@ -15,7 +15,12 @@ export class CharacterService {
     private readonly characterRepository: CharacterRepositoryInterface,
   ) {}
 
-  async createCharacter(name: string, type: number, privacy: boolean) {
+  async createCharacter(
+    userId: number,
+    name: string,
+    type: number,
+    privacy: boolean,
+  ) {
     const alreadyUsedCharacterName =
       await this.characterRepository.findByCharacterName(name);
 
@@ -24,6 +29,7 @@ export class CharacterService {
     }
 
     const character = await this.characterRepository.create(
+      userId,
       name,
       type,
       privacy,

@@ -32,12 +32,12 @@ describe('characterService 테스트', () => {
       when(
         await characterRepository.findByCharacterName(anyString()),
       ).thenReturn();
-      when(await characterRepository.create(NEW_NICKNAME, 1, false)).thenReturn(
-        createCharacter({ name: NEW_NICKNAME }),
-      );
+      when(
+        await characterRepository.create(1, NEW_NICKNAME, 1, false),
+      ).thenReturn(createCharacter({ name: NEW_NICKNAME }));
 
       const input = createCharacter({ name: NEW_NICKNAME });
-      const result = await service.createCharacter(NEW_NICKNAME, 1, false);
+      const result = await service.createCharacter(1, NEW_NICKNAME, 1, false);
 
       expect(input.id).toBe(result.id);
       expect(input.name).toBe(result.name);
@@ -52,7 +52,7 @@ describe('characterService 테스트', () => {
       ).thenReturn(createCharacter({ name: NEW_NICKNAME }));
 
       const result = async () => {
-        await service.createCharacter(NEW_NICKNAME, 1, false);
+        await service.createCharacter(1, NEW_NICKNAME, 1, false);
       };
 
       await expect(result).rejects.toThrowError(
@@ -74,6 +74,7 @@ const createCharacter = (params: Partial<Character>) => {
     level: params.level || 1,
     is_public: params.is_public || false,
     is_delete: params.is_delete || false,
+    user_id: params.user_id || 1,
     created_at: new Date(),
     updated_at: new Date(),
   };

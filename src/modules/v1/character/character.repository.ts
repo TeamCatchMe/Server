@@ -27,12 +27,14 @@ export default class CharacterRepository
   }
 
   async create(
+    userId: number,
     name: string,
     type: number,
     privacy: boolean,
   ): Promise<Character> {
     return await this.prisma.character.create({
       data: {
+        user_id: userId,
         name,
         type,
         is_public: privacy,
