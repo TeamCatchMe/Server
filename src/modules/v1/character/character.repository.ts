@@ -21,22 +21,24 @@ export default class CharacterRepository
     return await this.prisma.character.findMany();
   }
 
-  async findByCharacterName(): Promise<Character> {
-    return await this.prisma.character.findUnique({ where: {} });
+  async findByCharacterName(userId: number, name: string): Promise<Character> {
+    return await this.prisma.character.findFirst({
+      where: { user_id: userId, name },
+    });
   }
 
   async create(
     userId: number,
     name: string,
     type: number,
-    privacy: boolean,
+    is_public: boolean,
   ): Promise<Character> {
     return await this.prisma.character.create({
       data: {
         user_id: userId,
         name,
         type,
-        is_public: privacy,
+        is_public,
       },
     });
   }
