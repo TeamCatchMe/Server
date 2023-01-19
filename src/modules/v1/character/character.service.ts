@@ -25,7 +25,7 @@ export class CharacterService {
     is_public: boolean,
   ) {
     const alreadyUsedCharacterName =
-      await this.characterRepository.findByCharacterName(userId, name);
+      await this.characterRepository.findByCharacterNameAndUserId(userId, name);
 
     if (alreadyUsedCharacterName) {
       throw new ConflictException(rm.ALREADY_CHARACTER_NAME);

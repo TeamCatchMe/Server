@@ -5,7 +5,10 @@ export const CHARACTER_REPOSITORY = 'CHARACTER REPOSITORY';
 
 export interface CharacterRepositoryInterface
   extends BaseRepositoryInterface<Character> {
-  findByCharacterName(userId: number, name: string): Promise<Character>;
+  findByCharacterNameAndUserId(
+    userId: number,
+    name: string,
+  ): Promise<Character>;
   create(
     id: number,
     name: string,

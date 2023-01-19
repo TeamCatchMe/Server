@@ -24,13 +24,13 @@ describe('characterService 테스트', () => {
     expect(characterRepository).toBeDefined();
   });
 
-  describe(`✔️ 캐츄  생성 테스트`, () => {
+  describe(`✔️ 캐츄 생성 테스트`, () => {
     it(`캐츄 생성에 성공한 경우`, async () => {
       const NEW_NICKNAME = generateRandomString();
 
       // stub
       when(
-        await characterRepository.findByCharacterName(anyString()),
+        await characterRepository.findByCharacterNameAndUserId(1, anyString()),
       ).thenReturn();
       when(
         await characterRepository.create(1, NEW_NICKNAME, 1, false),
@@ -48,7 +48,7 @@ describe('characterService 테스트', () => {
 
       // stub
       when(
-        await characterRepository.findByCharacterName(NEW_NICKNAME),
+        await characterRepository.findByCharacterNameAndUserId(1, NEW_NICKNAME),
       ).thenReturn(createCharacter({ name: NEW_NICKNAME }));
 
       const result = async () => {
@@ -60,10 +60,52 @@ describe('characterService 테스트', () => {
       );
     });
   });
+
+  describe(`✔️ 캐츄 수정 테스트`, () => {
+    it(`캐츄 수정에 성공한 경우`, async () => {
+      const NEW_NICKNAME = generateRandomString();
+
+      // stub
+      when(
+        await characterRepository.findByCharacterNameAndUserId(1, anyString()),
+      ).thenReturn();
+      when(
+        await characterRepository.updateCharacter(1, NEW_NICKNAME, true),
+      ).thenReturn(createCharacter({ name: NEW_NICKNAME }));
+
+      const input = createCharacter({
+        name: NEW_NICKNAME,
+        type: 1,
+        is_public: true,
+      });
+      const result = await service.updateCharacter(1, NEW_NICKNAME, true);
+
+      expect(input.id).toBe(result.id);
+      expect(input.name).toBe(result.name);
+      expect(input.is_public).toBe(result.is_public);
+    });
+
+    it(`이미 사용중인 이름의 캐츄가 있는 경우 ConflictException으로 처리된다.`, async () => {
+      const NEW_NICKNAME = generateRandomString();
+
+      // stub
+      when(
+        await characterRepository.findByCharacterNameAndUserId(1, NEW_NICKNAME),
+      ).thenReturn(createCharacter({ name: NEW_NICKNAME }));
+
+      const result = async () => {
+        await service.updateCharacter(1, NEW_NICKNAME, 1, true);
+      };
+
+      await expect(result).rejects.toThrowError(
+        new ConflictException('이미 사용중인 캐츄 이름입니다.'),
+      );
+    });
+  });
 });
 
 const generateRandomString = () => {
-  return (Math.random() * 10).toString().replace('.', '');
+  return (Math.random() * 20).toString().replace('.', '');
 };
 
 const createCharacter = (params: Partial<Character>) => {
