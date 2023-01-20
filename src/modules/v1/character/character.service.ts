@@ -39,4 +39,30 @@ export class CharacterService {
     );
     return character;
   }
+
+  async editCharacter(
+    userId: number,
+    id: number,
+    name: string,
+    is_public: boolean,
+  ) {
+    const alreadyUsedCharacterName =
+      await this.characterRepository.findByCharacterNameAndIdAndUserId(
+        userId,
+        id,
+        name,
+      );
+
+    if (alreadyUsedCharacterName) {
+      throw new ConflictException(rm.ALREADY_CHARACTER_NAME);
+    }
+
+    const character = await this.characterRepository.updateCharacter(
+      id,
+      name,
+      is_public,
+    );
+
+    return character;
+  }
 }

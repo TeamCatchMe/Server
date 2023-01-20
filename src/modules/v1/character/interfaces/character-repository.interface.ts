@@ -9,11 +9,24 @@ export interface CharacterRepositoryInterface
     userId: number,
     name: string,
   ): Promise<Character>;
+
+  findByCharacterNameAndIdAndUserId(
+    userId: number,
+    id: number,
+    name: string,
+  ): Promise<Character>;
+
   create(
     id: number,
     name: string,
     type: number,
     privacy: boolean,
+  ): Promise<Character>;
+
+  updateCharacter(
+    id: number,
+    name: string,
+    is_public: boolean,
   ): Promise<Character>;
   // findById(id: number): Promise<Character>;
   // create(

@@ -30,6 +30,16 @@ export default class CharacterRepository
     });
   }
 
+  async findByCharacterNameAndIdAndUserId(
+    userId: number,
+    id: number,
+    name: string,
+  ): Promise<Character> {
+    return await this.prisma.character.findFirst({
+      where: { user_id: userId, name, id: { not: id } },
+    });
+  }
+
   async create(
     userId: number,
     name: string,
@@ -44,6 +54,22 @@ export default class CharacterRepository
         is_public,
       },
     });
+  }
+
+  async updateCharacter(
+    id: number,
+    name: string,
+    is_public: boolean,
+  ): Promise<Character> {
+    const character = await this.prisma.character.update({
+      where: { id },
+      data: {
+        name,
+        is_public,
+      },
+    });
+
+    return character;
   }
 
   //   async delete(userId: number): Promise<void> {

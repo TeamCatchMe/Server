@@ -78,7 +78,7 @@ describe('characterService 테스트', () => {
         type: 1,
         is_public: true,
       });
-      const result = await service.updateCharacter(1, NEW_NICKNAME, true);
+      const result = await service.editCharacter(1, 1, NEW_NICKNAME, true);
 
       expect(input.id).toBe(result.id);
       expect(input.name).toBe(result.name);
@@ -94,7 +94,7 @@ describe('characterService 테스트', () => {
       ).thenReturn(createCharacter({ name: NEW_NICKNAME }));
 
       const result = async () => {
-        await service.updateCharacter(1, NEW_NICKNAME, 1, true);
+        await service.editCharacter(1, 1, NEW_NICKNAME, true);
       };
 
       await expect(result).rejects.toThrowError(
