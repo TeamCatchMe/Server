@@ -20,7 +20,7 @@ export interface CharacterRepositoryInterface
     id: number,
     name: string,
     type: number,
-    privacy: boolean,
+    is_public: boolean,
   ): Promise<Character>;
 
   updateCharacter(
