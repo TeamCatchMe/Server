@@ -1,17 +1,23 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ActivityRepository } from '@modules/v1/activity/activity.repository';
+import { ActivityService } from '@modules/v1/activity/activity.service';
+import { ActivityRepositoryInterface } from '@modules/v1/activity/interfaces/activity-repository.interface';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Activity } from '@prisma/client';
 import dayjs from 'dayjs';
+import CustomParseFormat from 'dayjs/plugin/customParseFormat';
 import { instance, mock, reset, when } from 'ts-mockito';
+dayjs.extend(CustomParseFormat);
+
+const CONTENT = 'test content';
+const UPDATED_CONTENT = 'updated content';
+const DATE_STRING = '20230101';
+const DATE = dayjs(DATE_STRING, 'YYYYMMDD').toDate();
+const CHARACTER_ID = 1;
+const ACTIVITY_ID = 1;
+const USER_ID = 1;
 
 describe('ActivityService 테스트', () => {
-  let service: ActivityService,
-    activityRepository: ActivitiyRepositoryInterface;
-
-  const CONTENT = 'test content';
-  const UPDATED_CONTENT = 'updated content';
-  const CHARACTER_ID = 1;
-  const ACTIVITY_ID = 1;
-  const USER_ID = 1;
+  let service: ActivityService, activityRepository: ActivityRepositoryInterface;
 
   beforeEach(async () => {
     activityRepository = mock(ActivityRepository);
@@ -39,17 +45,18 @@ describe('ActivityService 테스트', () => {
   describe('✔️ 활동 작성 테스트', () => {
     it('활동 작성에 성공한 경우', async () => {
       when(
-        await activityRepository.create(USER_ID, CHARACTER_ID, CONTENT),
-      ).thenReturn(createActivity({ content: CONTENT }));
+        await activityRepository.create(USER_ID, CHARACTER_ID, CONTENT, DATE),
+      ).thenReturn(createActivity({ content: CONTENT, date: DATE }));
 
       const result = await service.createActivity(
         USER_ID,
         CHARACTER_ID,
         CONTENT,
+        DATE_STRING,
       );
 
-      expect(result.getId).toBe(1);
-      expect(result.getContent).toBe(CONTENT);
+      expect(result.id).toBe(1);
+      expect(result.content).toBe(CONTENT);
     });
   });
 
@@ -58,27 +65,32 @@ describe('ActivityService 테스트', () => {
       when(await activityRepository.findById(ACTIVITY_ID)).thenReturn(
         createActivity({}),
       );
+
       when(
-        await activityRepository.findByIdAndUserId(ACTIVITY_ID, USER_ID),
-      ).thenReturn(createActivity({}));
-      when(
-        await activityRepository.update(USER_ID, ACTIVITY_ID, UPDATED_CONTENT),
+        await activityRepository.update(ACTIVITY_ID, UPDATED_CONTENT, DATE),
       ).thenReturn(createActivity({ content: UPDATED_CONTENT }));
 
       const result = await service.updateActivity(
         USER_ID,
         ACTIVITY_ID,
         UPDATED_CONTENT,
+        DATE_STRING,
       );
 
-      expect(result.getId).toBe(1);
+      expect(result.id).toBe(1);
+      expect(result.content).toBe(UPDATED_CONTENT);
     });
 
     it('존재하지 않는 활동의 Id인 경우 NotFoundException이 발생한다.', async () => {
       when(await activityRepository.findById(ACTIVITY_ID)).thenReturn();
 
       const result = async () => {
-        await service.updateActivity(ACTIVITY_ID, UPDATED_CONTENT);
+        await service.updateActivity(
+          USER_ID,
+          ACTIVITY_ID,
+          UPDATED_CONTENT,
+          DATE_STRING,
+        );
       };
 
       expect(result).rejects.toThrowError(
@@ -86,39 +98,27 @@ describe('ActivityService 테스트', () => {
       );
     });
 
-    it('본인의 활동이 아닌 경우 BadRequestException이 발생한다.', async () => {
+    it('본인의 활동이 아닌 경우 ConflictException이 발생한다.', async () => {
       when(await activityRepository.findById(ACTIVITY_ID)).thenReturn(
-        createActivity({}),
+        createActivity({ user_id: 99 }),
       );
-      when(
-        await activityRepository.findByIdAndUserId(ACTIVITY_ID, USER_ID),
-      ).thenReturn();
 
       const result = async () => {
-        await service.updateActivity(USER_ID, ACTIVITY_ID, UPDATED_CONTENT);
+        await service.updateActivity(
+          USER_ID,
+          ACTIVITY_ID,
+          CONTENT,
+          DATE_STRING,
+        );
       };
 
       expect(result).rejects.toThrowError(
-        new BadRequestException('다른 유저의 활동을 수정할 수 없습니다.'),
+        new ConflictException('잘못된 접근입니다.'),
       );
     });
   });
 
   describe('✔️ 활동 삭제 테스트', () => {
-    it('활동 삭제에 성공한 경우', async () => {
-      when(await activityRepository.findById(ACTIVITY_ID)).thenReturn(
-        createActivity({}),
-      );
-      when(
-        await activityRepository.findByIdAndUserId(ACTIVITY_ID, USER_ID),
-      ).thenReturn(createActivity({}));
-      when(await activityRepository.delete(ACTIVITY_ID)).thenReturn();
-
-      const result = await service.deleteActivity(USER_ID, ACTIVITY_ID);
-
-      expect(result.getId).toBe(1);
-    });
-
     it('존재하지 않는 활동의 Id인 경우 NotFoundException이 발생한다.', async () => {
       when(await activityRepository.findById(ACTIVITY_ID)).thenReturn();
 
@@ -131,20 +131,17 @@ describe('ActivityService 테스트', () => {
       );
     });
 
-    it('본인의 활동이 아닌 경우 BadRequestException이 발생한다.', async () => {
+    it('본인의 활동이 아닌 경우 ConflictException이 발생한다.', async () => {
       when(await activityRepository.findById(ACTIVITY_ID)).thenReturn(
-        createActivity({}),
+        createActivity({ user_id: 99 }),
       );
-      when(
-        await activityRepository.findByIdAndUserId(ACTIVITY_ID, USER_ID),
-      ).thenReturn();
 
       const result = async () => {
         await service.deleteActivity(USER_ID, ACTIVITY_ID);
       };
 
       expect(result).rejects.toThrowError(
-        new BadRequestException('다른 유저의 활동을 삭제할 수 없습니다.'),
+        new ConflictException('잘못된 접근입니다.'),
       );
     });
   });
@@ -153,10 +150,11 @@ describe('ActivityService 테스트', () => {
 const createActivity = (params: Partial<Activity>) => {
   const activity: Activity = {
     id: params.id || 1,
+    user_id: params.user_id || 1,
     character_id: params.id || 1,
-    content: params.content || 'new content',
+    content: params.content || CONTENT,
     image: params.image || 'new image',
-    date: params.date || dayjs().toDate(),
+    date: params.date || DATE,
     is_delete: params.is_delete || false,
     created_at: new Date(),
     updated_at: new Date(),
