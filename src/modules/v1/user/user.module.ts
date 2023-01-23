@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { USER_REPOSITORY } from './interfaces/user-repository.interface';
 import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
@@ -11,6 +11,6 @@ const UserRepositoryProvider = {
 
 @Module({
   controllers: [UserController],
-  providers: [UserRepositoryProvider, UserService, Logger],
+  providers: [UserRepositoryProvider, UserService],
 })
 export class UserModule {}
