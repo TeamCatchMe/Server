@@ -5,6 +5,7 @@ export default {
   NOT_FOUND: '잘못된 경로입니다.',
   NO_IMAGE_TYPE: '이미지 파일이 아닙니다',
   INTERNAL_SERVER_ERROR: '서버 내부 오류',
+  UNAUTHORIZED: '잘못된 접근입니다.',
 
   //^ 회원가입 및 로그인
   SIGNUP_SUCCESS: '회원 가입 성공',
@@ -50,4 +51,10 @@ export default {
   NO_USER_UUID: '존재하지 않는 유저의 uuid 값입니다.',
   SEARCH_USER_FAIL: '해당 닉네임을 포함하는 유저가 존재하지 않습니다.',
   UPDATE_USER_DEVICE: '유저 디바이스 등록 성공',
+
+  READ_ACTIVITY_SUCCESS: '활동 조회 성공',
+  CREATE_ACTIVITY_SUCCESS: '활동 생성 성공',
+  UPDATE_ACTIVITY_SUCCESS: '활동 수정 성공',
+  DELETE_ACTIVITY_SUCCESS: '활동 삭제 성공',
+  NO_ACTIVITY_ID: '존재하지 않는 활동 Id입니다.',
 };
