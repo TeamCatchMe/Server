@@ -1,5 +1,6 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
+import { CharacterBlockSuccess } from '@common/constants/swagger/domain/character/CharacterBlockSuccess';
 import { CharacterCreateSuccess } from '@common/constants/swagger/domain/character/CharacterCreateSuccess';
 import { CharacterEditSuccess } from '@common/constants/swagger/domain/character/CharacterEditSuccess';
 import { ConflictError } from '@common/constants/swagger/error/ConflictError';
@@ -28,6 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { UserDTO } from '../user/dto/user.dto';
 import { CharacterService } from './character.service';
+import { CharacterBlockRequestDTO } from './dto/character-block.req.dto';
 import { CharacterCreateRequestDTO } from './dto/character-create.req.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
 
@@ -107,5 +109,34 @@ export class CharacterController {
       body.is_public,
     );
     return ResponseEntity.OK_WITH(rm.EDIT_CHARACTER_SUCCESS);
+  }
+
+  @ApiOperation({
+    summary: '캐츄를 차단합니다',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '캐츄 차단에 성공했습니다.',
+    type: CharacterBlockSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiConflictResponse({
+    description: '존재하지 않는 캐츄 Id입니다. | 이미 차단한 캐츄입니다.',
+    type: ConflictError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Post('block')
+  async blockCharacter(
+    @Token() user: UserDTO,
+    @Body() body: CharacterBlockRequestDTO,
+  ): Promise<ResponseEntity<string>> {
+    await this.characterService.blockCharacter(user.id, body.id);
+    return ResponseEntity.OK_WITH(rm.BLOCK_CHARACTER_SUCCESS);
   }
 }

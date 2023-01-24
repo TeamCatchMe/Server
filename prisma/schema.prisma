@@ -16,33 +16,36 @@ model Activity {
   created_at   DateTime  @default(now())
   is_delete    Boolean   @default(false)
   updated_at   DateTime  @default(now()) @updatedAt
+  user_id      Int
   Character    Character @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "activity_character_id_fk")
+  User         User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "activity_user_id_fk")
 }
 
 model Block {
-  id                         Int      @id(map: "block_pk") @unique(map: "block_id_uindex") @default(autoincrement())
+  id                         Int       @id(map: "block_pk") @default(autoincrement())
   user_id                    Int
   target_id                  Int
-  created_at                 DateTime @default(now())
-  is_delete                  Boolean  @default(false)
-  updated_at                 DateTime @default(now()) @updatedAt
-  User_Block_user_idToUser   User     @relation("Block_user_idToUser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_user_id_fk")
-  User_Block_target_idToUser User     @relation("Block_target_idToUser", fields: [target_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_user_id_fk_2")
+  created_at                 DateTime  @default(now())
+  is_delete                  Boolean   @default(false)
+  updated_at                 DateTime  @default(now()) @updatedAt
+  User_Block_target_idToUser Character @relation("Block_target_idToUser", fields: [target_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_character_id_fk")
+  User_Block_user_idToUser   User      @relation("Block_user_idToUser", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "block_user_id_fk")
 }
 
 model Character {
-  id         Int        @id(map: "character_pk") @unique(map: "character_id_uindex") @default(autoincrement())
-  name       String     @db.VarChar(100)
-  type       Int
-  level      Int        @default(1)
-  is_public  Boolean    @default(false)
-  created_at DateTime   @default(now())
-  is_delete  Boolean    @default(false)
-  updated_at DateTime   @default(now()) @updatedAt
-  user_id    Int
-  Activity   Activity[]
-  User       User       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "character_user_id_fk")
-  Report     Report[]
+  id                          Int        @id(map: "character_pk") @unique(map: "character_id_uindex") @default(autoincrement())
+  name                        String     @db.VarChar(100)
+  type                        Int
+  level                       Int        @default(1)
+  is_public                   Boolean    @default(false)
+  created_at                  DateTime   @default(now())
+  is_delete                   Boolean    @default(false)
+  updated_at                  DateTime   @default(now()) @updatedAt
+  user_id                     Int
+  Activity                    Activity[]
+  Block_Block_target_idToUser Block[]    @relation("Block_target_idToUser")
+  User                        User       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "character_user_id_fk")
+  Report                      Report[]
 }
 
 model Report {
@@ -57,16 +60,16 @@ model Report {
 }
 
 model User {
-  id                          Int         @id(map: "user_pk") @unique(map: "user_id_uindex") @default(autoincrement())
-  uuid                        String      @unique(map: "user_uuid_uindex") @db.VarChar(255)
-  provider                    String      @db.VarChar(20)
-  nickname                    String      @unique(map: "user_nickname_uindex") @db.VarChar(20)
-  created_at                  DateTime    @default(now())
-  is_delete                   Boolean     @default(false)
-  updated_at                  DateTime    @default(now()) @updatedAt
-  refresh_token               String      @unique(map: "user_refresh_token_uindex") @db.VarChar(500)
-  Block_Block_user_idToUser   Block[]     @relation("Block_user_idToUser")
-  Block_Block_target_idToUser Block[]     @relation("Block_target_idToUser")
-  Character                   Character[]
-  Report                      Report[]
+  id                        Int         @id(map: "user_pk") @unique(map: "user_id_uindex") @default(autoincrement())
+  uuid                      String      @unique(map: "user_uuid_uindex") @db.VarChar(255)
+  provider                  String      @db.VarChar(20)
+  nickname                  String      @unique(map: "user_nickname_uindex") @db.VarChar(20)
+  created_at                DateTime    @default(now())
+  is_delete                 Boolean     @default(false)
+  updated_at                DateTime    @default(now()) @updatedAt
+  refresh_token             String      @unique(map: "user_refresh_token_uindex") @db.VarChar(500)
+  Activity                  Activity[]
+  Block_Block_user_idToUser Block[]     @relation("Block_user_idToUser")
+  Character                 Character[]
+  Report                    Report[]
 }

@@ -5,6 +5,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import {
+  BlockRepositoryInterface,
+  BLOCK_REPOSITORY,
+} from '../block/interface/block-repository.interface';
 
 import {
   CharacterRepositoryInterface,
@@ -16,6 +20,8 @@ export class CharacterService {
   constructor(
     @Inject(CHARACTER_REPOSITORY)
     private readonly characterRepository: CharacterRepositoryInterface,
+    @Inject(BLOCK_REPOSITORY)
+    private readonly blockRepository: BlockRepositoryInterface,
   ) {}
 
   async createCharacter(
@@ -64,5 +70,27 @@ export class CharacterService {
     );
 
     return character;
+  }
+
+  async blockCharacter(userId: number, characterId: number) {
+    const existCharacter = await this.characterRepository.findById(characterId);
+
+    if (!existCharacter) {
+      throw new ConflictException(rm.NO_CHARACTER_ID);
+    }
+
+    const alreadyBlockedCharacter =
+      await this.blockRepository.findByUserIdAndTargetId(userId, characterId);
+
+    if (alreadyBlockedCharacter.length) {
+      throw new ConflictException(rm.ALREADY_BLOCKED_CHARACTER);
+    }
+
+    const blockCharacter = await this.blockRepository.block(
+      userId,
+      characterId,
+    );
+
+    return blockCharacter;
   }
 }

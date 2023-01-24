@@ -1,18 +1,26 @@
 import { CharacterRepositoryInterface } from '@modules/v1/character/interfaces/character-repository.interface';
+import { BlockRepositoryInterface } from '@modules/v1/block/interface/block-repository.interface';
 import CharacterRepository from '@modules/v1/character/character.repository';
 import { CharacterService } from '@modules/v1/character/character.service';
 import { ConflictException } from '@nestjs/common';
 import { Block, Character } from '@prisma/client';
 import { anyString, instance, mock, reset, when } from 'ts-mockito';
+import BlockRepository from '@modules/v1/block/block.repository';
 
 describe('characterService 테스트', () => {
   let service: CharacterService;
   let characterRepository: CharacterRepositoryInterface;
+  let blockRepository: BlockRepositoryInterface;
 
   beforeEach(async () => {
     characterRepository = mock(CharacterRepository);
     let characterRepositoryInstance = instance(characterRepository);
-    service = new CharacterService(characterRepositoryInstance);
+    blockRepository = mock(BlockRepository);
+    let blockRepositoryInstance = instance(blockRepository);
+    service = new CharacterService(
+      characterRepositoryInstance,
+      blockRepositoryInstance,
+    );
   });
 
   afterEach(async () => {
@@ -125,15 +133,14 @@ describe('characterService 테스트', () => {
 
       const result = await service.getCharactersFromMain(1);
 
-      if(result.length === 0){
+      if (result.length === 0) {
         expect(result).toEqual([]);
         expect(result).toBeInstanceOf(Array);
       } else {
         expect(result).toEqual(expect.arrayContaining(charactersFormat));
       }
-
     });
-
+  });
 
   describe(`✔️ 캐츄 차단 테스트`, () => {
     it(`캐츄 차단에 성공한 경우`, async () => {
@@ -141,7 +148,10 @@ describe('characterService 테스트', () => {
 
       // stub
       when(await characterRepository.findById(CatchuId)).thenReturn();
-      when(await characterRepository.block(1, CatchuId)).thenReturn(
+      when(
+        await blockRepository.findByUserIdAndTargetId(1, CatchuId),
+      ).thenReturn();
+      when(await blockRepository.block(1, CatchuId)).thenReturn(
         blockCharacter({ user_id: 1, target_id: CatchuId }),
       );
 
@@ -159,12 +169,34 @@ describe('characterService 테스트', () => {
       when(await characterRepository.findById(CatchuId)).thenReturn(
         createCharacter({ id: CatchuId }),
       );
+      when(
+        await blockRepository.findByUserIdAndTargetId(1, CatchuId),
+      ).thenReturn();
       const result = async () => {
         await service.blockCharacter(1, CatchuId);
       };
 
       await expect(result).rejects.toThrowError(
-        new ConflictException('존재하지 않는 캐츄 입니다.'),
+        new ConflictException('존재하지 않는 캐츄 Id입니다.'),
+      );
+    });
+
+    it(`이미 차단한 캐츄의 경우 ConflictException으로 처리된다.`, async () => {
+      const CatchuId = 1;
+
+      // stub
+      when(await characterRepository.findById(CatchuId)).thenReturn(
+        createCharacter({ id: CatchuId }),
+      );
+      when(
+        await blockRepository.findByUserIdAndTargetId(1, CatchuId),
+      ).thenReturn();
+      const result = async () => {
+        await service.blockCharacter(1, CatchuId);
+      };
+
+      await expect(result).rejects.toThrowError(
+        new ConflictException('이미 차단한 캐츄입니다.'),
       );
     });
   });
@@ -189,6 +221,7 @@ const createCharacter = (params: Partial<Character>) => {
 
   return character;
 };
+
 const blockCharacter = (params: Partial<Block>) => {
   const block: Block = {
     id: 1,
