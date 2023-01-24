@@ -84,7 +84,7 @@ describe('characterService 테스트', () => {
       const input = createCharacter({
         name: NEW_NICKNAME,
         type: 1,
-        is_public: true,
+        is_public: false,
       });
       const result = await service.editCharacter(1, 1, NEW_NICKNAME, true);
 
@@ -113,13 +113,12 @@ describe('characterService 테스트', () => {
 
   describe(`✔️ 캐츄 메인 목록 조회 테스트`, () => {
     it(`캐츄 메인 목록 조회에 성공한 경우`, async () => {
-      when(await characterRepository.findCharactersByUserId(1)).thenReturn();
+      when(
+        await characterRepository.findCharactersWithInfoByUserId(1),
+      ).thenReturn();
 
       const charactersFormat = [
         {
-          user: expect.objectContaining({
-            id: expect.any(String),
-          }),
           character: expect.objectContaining({
             id: expect.any(Number),
             name: expect.any(String),

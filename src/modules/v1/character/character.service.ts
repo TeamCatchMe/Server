@@ -93,4 +93,11 @@ export class CharacterService {
 
     return blockCharacter;
   }
+
+  async getCharactersFromMain(userId: number) {
+    const existCharacter =
+      await this.characterRepository.findCharactersWithInfoByUserId(userId);
+
+    return existCharacter;
+  }
 }

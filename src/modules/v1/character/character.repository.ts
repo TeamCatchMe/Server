@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Character } from '@prisma/client';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
 import { CharacterRepositoryInterface } from './interfaces/character-repository.interface';
 
 @Injectable()
@@ -70,6 +71,54 @@ export default class CharacterRepository
     });
 
     return character;
+  }
+
+  async findCharactersWithInfoByUserId(
+    user_id: number,
+  ): Promise<CharacterGetFromMainResponseDTO[]> {
+    const characters = await this.prisma.character.findMany({
+      where: {
+        user_id,
+      },
+      include: {
+        Activity: true,
+      },
+    });
+
+    const result = characters.reduce(
+      (acc, character) => {
+        const characterInfo = {
+          id: character.id,
+          name: character.name,
+          type: character.type,
+          level: character.level,
+          activity_count: character.Activity.length,
+        };
+        acc.character.push(characterInfo);
+        acc.totalActivityCount += character.Activity.length;
+        return acc;
+      },
+      {
+        character: [],
+        totalActivityCount: 0,
+      },
+    );
+
+    const mainCharacters: CharacterGetFromMainResponseDTO[] =
+      result.character.reduce((acc, character) => {
+        const catchu_rate = Math.round(
+          (character.activity_count / result.totalActivityCount) * 100,
+        );
+
+        const characterInfo = {
+          ...character,
+          cachu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
+        };
+        acc.push(characterInfo);
+        return acc;
+      }, []);
+
+    return mainCharacters;
   }
 
   //   async delete(userId: number): Promise<void> {

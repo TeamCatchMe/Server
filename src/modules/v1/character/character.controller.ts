@@ -3,6 +3,7 @@ import { ResponseEntity } from '@common/constants/responseEntity';
 import { CharacterBlockSuccess } from '@common/constants/swagger/domain/character/CharacterBlockSuccess';
 import { CharacterCreateSuccess } from '@common/constants/swagger/domain/character/CharacterCreateSuccess';
 import { CharacterEditSuccess } from '@common/constants/swagger/domain/character/CharacterEditSuccess';
+import { CharacterGetFromMainSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromMainSuccess';
 import { ConflictError } from '@common/constants/swagger/error/ConflictError';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
@@ -11,6 +12,7 @@ import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import {
   Body,
   Controller,
+  Get,
   Inject,
   Logger,
   LoggerService,
@@ -32,6 +34,7 @@ import { CharacterService } from './character.service';
 import { CharacterBlockRequestDTO } from './dto/character-block.req.dto';
 import { CharacterCreateRequestDTO } from './dto/character-create.req.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
+import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
 
 @ApiTags('Character API')
 @Controller('character')
@@ -138,5 +141,34 @@ export class CharacterController {
   ): Promise<ResponseEntity<string>> {
     await this.characterService.blockCharacter(user.id, body.id);
     return ResponseEntity.OK_WITH(rm.BLOCK_CHARACTER_SUCCESS);
+  }
+
+  @ApiOperation({
+    summary: '메인에서 캐츄 목록을 조회합니다',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '캐츄 메인 목록 조회에 성공했습니다.',
+    type: CharacterGetFromMainSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get()
+  async getCharactersFromMain(
+    @Token() user: UserDTO,
+  ): Promise<ResponseEntity<CharacterGetFromMainResponseDTO[]>> {
+    const characters = await this.characterService.getCharactersFromMain(
+      user.id,
+    );
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_CHARACTERS_FROM_MAIN_SUCCESS,
+      characters,
+    );
   }
 }

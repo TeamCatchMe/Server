@@ -58,4 +58,5 @@ export default {
   NO_CHARACTER_ID: '존재하지 않는 캐츄 Id입니다.',
   ALREADY_BLOCKED_CHARACTER: '이미 차단한 캐츄입니다.',
   BLOCK_CHARACTER_SUCCESS: '캐츄 차단 성공',
+  READ_CHARACTERS_FROM_MAIN_SUCCESS: '캐츄 메인 목록 조회 성공',
 };
