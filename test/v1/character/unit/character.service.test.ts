@@ -2,7 +2,7 @@ import { CharacterRepositoryInterface } from '@modules/v1/character/interfaces/c
 import CharacterRepository from '@modules/v1/character/character.repository';
 import { CharacterService } from '@modules/v1/character/character.service';
 import { ConflictException } from '@nestjs/common';
-import { Character } from '@prisma/client';
+import { Block, Character } from '@prisma/client';
 import { anyString, instance, mock, reset, when } from 'ts-mockito';
 
 describe('characterService 테스트', () => {
@@ -102,6 +102,46 @@ describe('characterService 테스트', () => {
       );
     });
   });
+
+  describe(`✔️ 캐츄 메인 목록 조회 테스트`, () => {
+    it(`캐츄 메인 목록 조회에 성공한 경우`, async () => {});
+  });
+
+  describe(`✔️ 캐츄 차단 테스트`, () => {
+    it(`캐츄 차단에 성공한 경우`, async () => {
+      const CatchuId = 1;
+
+      // stub
+      when(await characterRepository.findById(CatchuId)).thenReturn();
+      when(await characterRepository.block(1, CatchuId)).thenReturn(
+        blockCharacter({ user_id: 1, target_id: CatchuId }),
+      );
+
+      const input = blockCharacter({ user_id: 1, target_id: CatchuId });
+      const result = await service.blockCharacter(1, CatchuId);
+
+      expect(input.user_id).toBe(result.user_id);
+      expect(input.target_id).toBe(result.target_id);
+    });
+
+    it(`존재하지 않는 캐츄의 경우 ConflictException으로 처리된다.`, async () => {
+      const CatchuId = 1;
+
+      // stub
+
+      when(await characterRepository.findById(CatchuId)).thenReturn(
+        createCharacter({ id: CatchuId }),
+      );
+
+      const result = async () => {
+        await service.blockCharacter(1, CatchuId);
+      };
+
+      await expect(result).rejects.toThrowError(
+        new ConflictException('존재하지 않는 캐츄 입니다.'),
+      );
+    });
+  });
 });
 
 const generateRandomString = () => {
@@ -122,4 +162,16 @@ const createCharacter = (params: Partial<Character>) => {
   };
 
   return character;
+};
+const blockCharacter = (params: Partial<Block>) => {
+  const block: Block = {
+    id: 1,
+    target_id: params.target_id || 1,
+    user_id: params.user_id || 1,
+    is_delete: params.is_delete || false,
+    created_at: new Date(),
+    updated_at: new Date(),
+  };
+
+  return block;
 };
