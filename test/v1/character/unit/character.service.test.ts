@@ -104,8 +104,36 @@ describe('characterService 테스트', () => {
   });
 
   describe(`✔️ 캐츄 메인 목록 조회 테스트`, () => {
-    it(`캐츄 메인 목록 조회에 성공한 경우`, async () => {});
-  });
+    it(`캐츄 메인 목록 조회에 성공한 경우`, async () => {
+      when(await characterRepository.findCharactersByUserId(1)).thenReturn();
+
+      const charactersFormat = [
+        {
+          user: expect.objectContaining({
+            id: expect.any(String),
+          }),
+          character: expect.objectContaining({
+            id: expect.any(Number),
+            name: expect.any(String),
+            type: expect.any(Number),
+            level: expect.any(Number),
+            activity_count: expect.any(Number),
+            catchu_rate: expect.any(Number),
+          }),
+        },
+      ];
+
+      const result = await service.getCharactersFromMain(1);
+
+      if(result.length === 0){
+        expect(result).toEqual([]);
+        expect(result).toBeInstanceOf(Array);
+      } else {
+        expect(result).toEqual(expect.arrayContaining(charactersFormat));
+      }
+
+    });
+
 
   describe(`✔️ 캐츄 차단 테스트`, () => {
     it(`캐츄 차단에 성공한 경우`, async () => {
