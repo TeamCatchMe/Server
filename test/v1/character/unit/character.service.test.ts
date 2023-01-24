@@ -128,11 +128,9 @@ describe('characterService 테스트', () => {
       const CatchuId = 1;
 
       // stub
-
       when(await characterRepository.findById(CatchuId)).thenReturn(
         createCharacter({ id: CatchuId }),
       );
-
       const result = async () => {
         await service.blockCharacter(1, CatchuId);
       };
