@@ -39,7 +39,9 @@ model Character {
   created_at DateTime   @default(now())
   is_delete  Boolean    @default(false)
   updated_at DateTime   @default(now()) @updatedAt
+  user_id    Int
   Activity   Activity[]
+  User       User       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "character_user_id_fk")
   Report     Report[]
 }
 
@@ -55,15 +57,16 @@ model Report {
 }
 
 model User {
-  id                          Int      @id(map: "user_pk") @unique(map: "user_id_uindex") @default(autoincrement())
-  uuid                        String   @unique(map: "user_uuid_uindex") @db.VarChar(255)
-  provider                    String   @db.VarChar(20)
-  nickname                    String   @unique(map: "user_nickname_uindex") @db.VarChar(20)
-  created_at                  DateTime @default(now())
-  is_delete                   Boolean  @default(false)
-  updated_at                  DateTime @default(now()) @updatedAt
-  refresh_token               String   @unique(map: "user_refresh_token_uindex") @db.VarChar(500)
-  Block_Block_user_idToUser   Block[]  @relation("Block_user_idToUser")
-  Block_Block_target_idToUser Block[]  @relation("Block_target_idToUser")
+  id                          Int         @id(map: "user_pk") @unique(map: "user_id_uindex") @default(autoincrement())
+  uuid                        String      @unique(map: "user_uuid_uindex") @db.VarChar(255)
+  provider                    String      @db.VarChar(20)
+  nickname                    String      @unique(map: "user_nickname_uindex") @db.VarChar(20)
+  created_at                  DateTime    @default(now())
+  is_delete                   Boolean     @default(false)
+  updated_at                  DateTime    @default(now()) @updatedAt
+  refresh_token               String      @unique(map: "user_refresh_token_uindex") @db.VarChar(500)
+  Block_Block_user_idToUser   Block[]     @relation("Block_user_idToUser")
+  Block_Block_target_idToUser Block[]     @relation("Block_target_idToUser")
+  Character                   Character[]
   Report                      Report[]
 }

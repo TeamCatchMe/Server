@@ -50,4 +50,9 @@ export default {
   NO_USER_UUID: '존재하지 않는 유저의 uuid 값입니다.',
   SEARCH_USER_FAIL: '해당 닉네임을 포함하는 유저가 존재하지 않습니다.',
   UPDATE_USER_DEVICE: '유저 디바이스 등록 성공',
+
+  //^캐츄
+  CREATE_CHARACTER_SUCCESS: '캐츄 생성 성공',
+  EDIT_CHARACTER_SUCCESS: '캐츄 수정 성공',
+  ALREADY_CHARACTER_NAME: '이미 사용중인 캐츄 이름입니다.',
 };
