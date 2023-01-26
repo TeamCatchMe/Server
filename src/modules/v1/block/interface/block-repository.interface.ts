@@ -1,3 +1,4 @@
+import { SortType } from '@modules/v1/character/interfaces/sort-type';
 import { Block } from '@prisma/client';
 
 export const BLOCK_REPOSITORY = 'BLOCK REPOSITORY';

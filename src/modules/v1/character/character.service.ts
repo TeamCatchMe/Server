@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Character } from '@prisma/client';
 import {
   BlockRepositoryInterface,
   BLOCK_REPOSITORY,
@@ -14,6 +15,7 @@ import {
   CharacterRepositoryInterface,
   CHARACTER_REPOSITORY,
 } from './interfaces/character-repository.interface';
+import { SortType } from './interfaces/sort-type';
 
 @Injectable()
 export class CharacterService {
@@ -99,5 +101,29 @@ export class CharacterService {
       await this.characterRepository.findCharactersWithInfoByUserId(userId);
 
     return existCharacter;
+  }
+
+  async getCharacters(userId: number, sort: SortType) {
+    let characters: Character[];
+
+    // switch (sort) {
+    //   case 'recent':
+    //     characters = await this.characterRepository.findCharactersUserId(
+    //       userId,
+    //     );
+    //     break;
+    //   case 'most':
+    //     characters = await this.characterRepository.findCharactersUserId(
+    //       userId,
+    //     );
+    //     break;
+    //   default:
+    //     characters = await this.characterRepository.findCharactersUserId(
+    //       userId,
+    //     );
+    //     break;
+    // }
+
+    return characters;
   }
 }

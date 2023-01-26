@@ -6,6 +6,7 @@ import { ConflictException } from '@nestjs/common';
 import { Block, Character } from '@prisma/client';
 import { anyString, instance, mock, reset, when } from 'ts-mockito';
 import BlockRepository from '@modules/v1/block/block.repository';
+import { CharactersResponseDTO } from '@modules/v1/character/dto/characters.res.dto';
 
 describe('characterService 테스트', () => {
   let service: CharacterService;
@@ -17,6 +18,7 @@ describe('characterService 테스트', () => {
     let characterRepositoryInstance = instance(characterRepository);
     blockRepository = mock(BlockRepository);
     let blockRepositoryInstance = instance(blockRepository);
+
     service = new CharacterService(
       characterRepositoryInstance,
       blockRepositoryInstance,
@@ -199,6 +201,30 @@ describe('characterService 테스트', () => {
       );
     });
   });
+
+  describe(`✔️ 캐츄 목록 조회 테스트`, () => {
+    it(`캐츄 목록 조회(최근 생성순)에 성공한 경우`, async () => {
+      const characters = when(
+        await characterRepository.findCharactersOrderByBirth(1),
+      ).thenReturn(returnCharacterList());
+      //TODO: return되는 mocking data 생성하는 방법 찾아야함
+      expect(characters instanceof CharactersResponseDTO).toBe(true);
+    });
+
+    it(`캐츄 목록 조회(최다 활동순)에 성공한 경우`, async () => {
+      const characters = when(
+        await characterRepository.findCharactersOrderByBirth(1),
+      ).thenReturn(returnCharacterList());
+      expect(characters instanceof CharactersResponseDTO).toBe(true);
+    });
+
+    it(`캐츄 목록 조회(최근 활동순)에 성공한 경우`, async () => {
+      const characters = when(
+        await characterRepository.findCharactersOrderByRecent(1),
+      ).thenReturn(returnCharacterList());
+      expect(characters instanceof CharactersResponseDTO).toBe(true);
+    });
+  });
 });
 
 const generateRandomString = () => {
@@ -232,4 +258,23 @@ const blockCharacter = (params: Partial<Block>) => {
   };
 
   return block;
+};
+
+const returnCharacterList = () => {
+  const character: CharactersResponseDTO[] = [
+    {
+      id: 1,
+      name: '버디',
+      type: 1,
+      level: 1,
+    },
+    {
+      id: 2,
+      name: '룽지',
+      type: 2,
+      level: 1,
+    },
+  ];
+
+  return character;
 };

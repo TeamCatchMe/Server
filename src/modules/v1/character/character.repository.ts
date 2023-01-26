@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Character } from '@prisma/client';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
+import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { CharacterRepositoryInterface } from './interfaces/character-repository.interface';
 
 @Injectable()
@@ -120,6 +121,10 @@ export default class CharacterRepository
 
     return mainCharacters;
   }
+
+  async findCharactersOrderByMost(userId: number): Promise<any> {}
+  async findCharactersOrderByRecent(userId: number): Promise<any> {}
+  async findCharactersOrderByBirth(userId: number): Promise<any> {}
 
   //   async delete(userId: number): Promise<void> {
   //     await this.prisma.user.delete({
