@@ -3,7 +3,8 @@ import { ResponseEntity } from '@common/constants/responseEntity';
 import { CharacterBlockSuccess } from '@common/constants/swagger/domain/character/CharacterBlockSuccess';
 import { CharacterCreateSuccess } from '@common/constants/swagger/domain/character/CharacterCreateSuccess';
 import { CharacterEditSuccess } from '@common/constants/swagger/domain/character/CharacterEditSuccess';
-import { CharacterGetFromMainSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromMainSuccess';
+import { CharacterGetListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromMainSuccess';
+import { CharacterGetFromMainSuccess } from '@common/constants/swagger/domain/character/CharactersListSuccess';
 import { ConflictError } from '@common/constants/swagger/error/ConflictError';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
@@ -18,6 +19,7 @@ import {
   LoggerService,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -35,6 +37,8 @@ import { CharacterBlockRequestDTO } from './dto/character-block.req.dto';
 import { CharacterCreateRequestDTO } from './dto/character-create.req.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
+import { CharactersResponseDTO } from './dto/characters.res.dto';
+import { SortType } from './interfaces/sort-type';
 
 @ApiTags('Character API')
 @Controller('character')
@@ -168,6 +172,34 @@ export class CharacterController {
     );
     return ResponseEntity.OK_WITH_DATA(
       rm.READ_CHARACTERS_FROM_MAIN_SUCCESS,
+      characters,
+    );
+  }
+
+  @ApiOperation({
+    summary: '캐츄 목록을 조회합니다',
+    description: `sort의 값으로, 최다 활동순은 'most', 생성일 순은 'birth', 최근 활동순은 'recent'를 입력해주면 됩니다.`,
+  })
+  @ApiOkResponse({
+    description: '캐츄 목록 조회에 성공했습니다.',
+    type: CharacterGetListSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get('list')
+  async getCharactersWithSort(
+    @Token() user: UserDTO,
+    @Query('sort') sort: SortType,
+  ): Promise<ResponseEntity<CharactersResponseDTO[]>> {
+    const characters = await this.characterService.getCharacters(user.id, sort);
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_CHARACTERS_LIST_SUCCESS,
       characters,
     );
   }

@@ -122,9 +122,77 @@ export default class CharacterRepository
     return mainCharacters;
   }
 
-  async findCharactersOrderByMost(userId: number): Promise<any> {}
-  async findCharactersOrderByRecent(userId: number): Promise<any> {}
-  async findCharactersOrderByBirth(userId: number): Promise<any> {}
+  async findCharactersOrderByMost(userId: number): Promise<any> {
+    const charactersOrderedByActivityCount =
+      await this.prisma.character.findMany({
+        include: {
+          Activity: true,
+        },
+        orderBy: {
+          Activity: {
+            _count: 'desc',
+          },
+        },
+        where: { user_id: userId },
+      });
+
+    const characters: CharactersResponseDTO[] = [];
+    charactersOrderedByActivityCount.map((character) => {
+      characters.push({
+        id: character.id,
+        name: character.name,
+        type: character.type,
+        level: character.level,
+      });
+    });
+    return characters;
+  }
+
+  async findCharactersOrderByRecent(userId: number): Promise<any> {
+    const charactersWithActivities = await this.prisma.character.findMany({
+      include: {
+        Activity: {
+          select: {
+            created_at: true,
+          },
+          orderBy: {
+            created_at: 'desc',
+          },
+          take: 1,
+        },
+      },
+      where: { user_id: userId },
+    });
+
+    const charactersOrderedByRecent = charactersWithActivities.sort(
+      (a, b) =>
+        new Date(b?.Activity[0]?.created_at).getTime() -
+        new Date(a?.Activity[0]?.created_at).getTime(),
+    );
+
+    const characters: CharactersResponseDTO[] = [];
+    charactersOrderedByRecent.map((character) => {
+      characters.push({
+        id: character.id,
+        name: character.name,
+        type: character.type,
+        level: character.level,
+      });
+    });
+
+    return characters;
+  }
+
+  async findCharactersOrderByBirth(userId: number): Promise<any> {
+    const characters = await this.prisma.character.findMany({
+      select: { id: true, name: true, type: true, level: true },
+      orderBy: {
+        created_at: 'asc',
+      },
+      where: { user_id: userId },
+    });
+    return characters;
+  }
 
   //   async delete(userId: number): Promise<void> {
   //     await this.prisma.user.delete({

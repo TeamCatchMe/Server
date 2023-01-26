@@ -10,6 +10,7 @@ import {
   BlockRepositoryInterface,
   BLOCK_REPOSITORY,
 } from '../block/interface/block-repository.interface';
+import { CharactersResponseDTO } from './dto/characters.res.dto';
 
 import {
   CharacterRepositoryInterface,
@@ -104,25 +105,25 @@ export class CharacterService {
   }
 
   async getCharacters(userId: number, sort: SortType) {
-    let characters: Character[];
+    let characters: CharactersResponseDTO[];
 
-    // switch (sort) {
-    //   case 'recent':
-    //     characters = await this.characterRepository.findCharactersUserId(
-    //       userId,
-    //     );
-    //     break;
-    //   case 'most':
-    //     characters = await this.characterRepository.findCharactersUserId(
-    //       userId,
-    //     );
-    //     break;
-    //   default:
-    //     characters = await this.characterRepository.findCharactersUserId(
-    //       userId,
-    //     );
-    //     break;
-    // }
+    switch (sort) {
+      case 'recent':
+        characters = await this.characterRepository.findCharactersOrderByRecent(
+          userId,
+        );
+        break;
+      case 'most':
+        characters = await this.characterRepository.findCharactersOrderByMost(
+          userId,
+        );
+        break;
+      default:
+        characters = await this.characterRepository.findCharactersOrderByBirth(
+          userId,
+        );
+        break;
+    }
 
     return characters;
   }
