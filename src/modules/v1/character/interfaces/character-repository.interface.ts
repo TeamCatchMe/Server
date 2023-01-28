@@ -1,5 +1,7 @@
 import BaseRepositoryInterface from '@common/interfaces/base-repository.interface';
 import { Character } from '@prisma/client';
+import { CharacterGetFromMainResponseDTO } from '../dto/character-get-from-main.res.dto';
+import { CharactersResponseDTO } from '../dto/characters.res.dto';
 
 export const CHARACTER_REPOSITORY = 'CHARACTER REPOSITORY';
 
@@ -28,6 +30,14 @@ export interface CharacterRepositoryInterface
     name: string,
     is_public: boolean,
   ): Promise<Character>;
+
+  findCharactersWithInfoByUserId(
+    userId: number,
+  ): Promise<CharacterGetFromMainResponseDTO[]>;
+
+  findCharactersOrderByMost(userId: number): Promise<CharactersResponseDTO[]>;
+  findCharactersOrderByRecent(userId: number): Promise<CharactersResponseDTO[]>;
+  findCharactersOrderByBirth(userId: number): Promise<CharactersResponseDTO[]>;
   // findById(id: number): Promise<Character>;
   // create(
   //   social: SocialPlatform,
