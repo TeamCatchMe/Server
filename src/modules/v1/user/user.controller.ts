@@ -7,6 +7,7 @@ import { InternalServerError } from '@common/constants/swagger/error/InternalSer
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
 import { Token } from '@common/decorators/token.decorator';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
+import { routesV1 } from '@config/routes.config';
 import {
   Body,
   Controller,
@@ -31,8 +32,8 @@ import { UserNicknameQueryDTO } from './dto/user-nickname.query.dto';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 
+@Controller(routesV1.version)
 @ApiTags('User API')
-@Controller('user')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('Authorization')
 export class UserController {
@@ -59,7 +60,7 @@ export class UserController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Patch('nickname')
+  @Patch(routesV1.user.nickname)
   async updateNickname(
     @Token() user: UserDTO,
     @Body() dto: UserNicknamePatchReqDTO,
@@ -89,7 +90,7 @@ export class UserController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Get('nickname')
+  @Get(routesV1.user.nickname_check)
   async checkDuplicateNickname(
     @Query() query: UserNicknameQueryDTO,
   ): Promise<ResponseEntity<string>> {

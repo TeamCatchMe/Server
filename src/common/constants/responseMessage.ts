@@ -5,6 +5,7 @@ export default {
   NOT_FOUND: '잘못된 경로입니다.',
   NO_IMAGE_TYPE: '이미지 파일이 아닙니다',
   INTERNAL_SERVER_ERROR: '서버 내부 오류',
+  UNAUTHORIZED: '잘못된 접근입니다.',
 
   //^ 회원가입 및 로그인
   SIGNUP_SUCCESS: '회원 가입 성공',
@@ -51,6 +52,13 @@ export default {
   SEARCH_USER_FAIL: '해당 닉네임을 포함하는 유저가 존재하지 않습니다.',
   UPDATE_USER_DEVICE: '유저 디바이스 등록 성공',
 
+
+  READ_ACTIVITY_SUCCESS: '활동 조회 성공',
+  CREATE_ACTIVITY_SUCCESS: '활동 생성 성공',
+  UPDATE_ACTIVITY_SUCCESS: '활동 수정 성공',
+  DELETE_ACTIVITY_SUCCESS: '활동 삭제 성공',
+  NO_ACTIVITY_ID: '존재하지 않는 활동 Id입니다.',
+
   //^캐츄
   CREATE_CHARACTER_SUCCESS: '캐츄 생성 성공',
   EDIT_CHARACTER_SUCCESS: '캐츄 수정 성공',
@@ -60,4 +68,5 @@ export default {
   BLOCK_CHARACTER_SUCCESS: '캐츄 차단 성공',
   READ_CHARACTERS_FROM_MAIN_SUCCESS: '캐츄 메인 목록 조회 성공',
   READ_CHARACTERS_LIST_SUCCESS: '캐츄 메인 목록 조회 성공',
+
 };
