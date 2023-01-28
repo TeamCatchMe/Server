@@ -52,9 +52,16 @@ export default {
   SEARCH_USER_FAIL: '해당 닉네임을 포함하는 유저가 존재하지 않습니다.',
   UPDATE_USER_DEVICE: '유저 디바이스 등록 성공',
 
+
   READ_ACTIVITY_SUCCESS: '활동 조회 성공',
   CREATE_ACTIVITY_SUCCESS: '활동 생성 성공',
   UPDATE_ACTIVITY_SUCCESS: '활동 수정 성공',
   DELETE_ACTIVITY_SUCCESS: '활동 삭제 성공',
   NO_ACTIVITY_ID: '존재하지 않는 활동 Id입니다.',
+
+  //^캐츄
+  CREATE_CHARACTER_SUCCESS: '캐츄 생성 성공',
+  EDIT_CHARACTER_SUCCESS: '캐츄 수정 성공',
+  ALREADY_CHARACTER_NAME: '이미 사용중인 캐츄 이름입니다.',
+
 };
