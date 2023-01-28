@@ -12,6 +12,7 @@ import { NotFoundError } from '@common/constants/swagger/error/NotFoundError';
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
 import { Token } from '@common/decorators/token.decorator';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
+import { routesV1 } from '@config/routes.config';
 import {
   Body,
   Controller,
@@ -40,8 +41,8 @@ import { AuthSignupRequestDTO } from './dto/auth-signup.req.dto';
 import { AuthTokenGetHeaderDTO } from './dto/auth-token-get.header.dto';
 import { AuthResponseDTO } from './dto/auth.res.dto';
 
-@Controller('auth')
 @ApiTags('Auth API')
+@Controller(routesV1.version)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -66,7 +67,7 @@ export class AuthController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Post('/signup')
+  @Post(routesV1.auth.signup)
   async signup(
     @Body() body: AuthSignupRequestDTO,
   ): Promise<ResponseEntity<AuthResponseDTO>> {
@@ -105,7 +106,7 @@ export class AuthController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Post('/login')
+  @Post(routesV1.auth.signin)
   async login(
     @Body() body: AuthLoginRequestDTO,
   ): Promise<ResponseEntity<AuthResponseDTO>> {
@@ -147,7 +148,7 @@ export class AuthController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Get('/token')
+  @Get(routesV1.auth.token)
   async refreshToken(@Headers() header: AuthTokenGetHeaderDTO) {
     const data = await this.authService.renewalToken(
       header.accesstoken,
@@ -181,7 +182,7 @@ export class AuthController {
     description: '서버 내부 오류입니다.',
     type: InternalServerError,
   })
-  @Delete()
+  @Delete(routesV1.auth.withdraw)
   @ApiBearerAuth('Authorization')
   async deleteUser(@Token() user: UserDTO) {
     await this.authService.withdraw(user.id);
