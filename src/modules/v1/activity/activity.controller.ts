@@ -3,6 +3,7 @@ import { ResponseEntity } from '@common/constants/responseEntity';
 import { UserPatchNicknameSuccess } from '@common/constants/swagger/domain/user/UserPatchNicknameSuccess';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
+import { ApiImageFile } from '@common/decorators/api-file.decorator';
 import { Token } from '@common/decorators/token.decorator';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { routesV1 } from '@config/routes.config';
@@ -106,6 +107,7 @@ export class ActivityController {
   }
 
   //todo [POST] 활동 작성
+  @ApiImageFile('image')
   @ApiOperation({
     summary: '활동을 작성합니다.',
     description: `
@@ -129,7 +131,6 @@ export class ActivityController {
           description: '활동에 들어가는 이미지 파일입니다.',
         },
       },
-      required: ['file'],
     },
   })
   @ApiCreatedResponse({
@@ -147,16 +148,16 @@ export class ActivityController {
   @Post(routesV1.activity.create)
   async createActivity(
     @Token() user: UserDTO,
-    @UploadedFile() file: Express.MulterS3.File,
     @Body() body: ActivityCreateRequestDto,
+    @UploadedFile() file?: Express.MulterS3.File,
   ): Promise<ResponseEntity<any>> {
-    const url = file.location;
+    const url = file ? file.location : null;
     const data = await this.activityService.createActivity(
       user.id,
       body.character_id,
       body.content,
       body.date,
-      url ? url : null,
+      url,
     );
     return ResponseEntity.CREATED_WITH_DATA(rm.CREATE_ACTIVITY_SUCCESS, data);
   }
