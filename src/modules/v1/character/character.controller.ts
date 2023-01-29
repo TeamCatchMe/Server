@@ -178,7 +178,7 @@ export class CharacterController {
 
   @ApiOperation({
     summary: '캐츄 목록을 조회합니다',
-    description: `sort의 값으로, 최다 활동순은 'most', 생성일 순은 'birth', 최근 활동순은 'recent'를 입력해주면 됩니다.`,
+    description: `query값으로 sort 타입을 전달받습니다 (예시 : /list?sort=most)<br>sort의 값으로, 최다 활동순은 'most', 생성일 순은 'birth', 최근 활동순은 'recent'를 입력해주면 됩니다.`,
   })
   @ApiOkResponse({
     description: '캐츄 목록 조회에 성공했습니다.',
