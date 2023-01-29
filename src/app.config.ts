@@ -38,6 +38,7 @@ export class AppConfig {
       new ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
+        skipMissingProperties: true,
         transform: true,
         transformOptions: {
           enableImplicitConversion: true,
