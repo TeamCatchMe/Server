@@ -50,6 +50,7 @@
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.4",
     "dotenv": "^16.0.3",
+    "dotenv-cli": "^6.0.0",
     "express-basic-auth": "^1.2.1",
     "express-rate-limit": "^6.4.0",
     "global": "^4.4.0",
