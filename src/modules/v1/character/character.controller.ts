@@ -10,6 +10,7 @@ import { InternalServerError } from '@common/constants/swagger/error/InternalSer
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
 import { Token } from '@common/decorators/token.decorator';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
+import { routesV1 } from '@config/routes.config';
 import {
   Body,
   Controller,
@@ -17,6 +18,7 @@ import {
   Inject,
   Logger,
   LoggerService,
+  Param,
   Patch,
   Post,
   Query,
@@ -35,6 +37,7 @@ import { UserDTO } from '../user/dto/user.dto';
 import { CharacterService } from './character.service';
 import { CharacterBlockRequestDTO } from './dto/character-block.req.dto';
 import { CharacterCreateRequestDTO } from './dto/character-create.req.dto';
+import { CharacterIdParamsDTO } from './dto/character-detail.params.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
@@ -70,7 +73,7 @@ export class CharacterController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Post()
+  @Post(routesV1.character.create)
   async createCharacter(
     @Token() user: UserDTO,
     @Body() body: CharacterCreateRequestDTO,
@@ -104,7 +107,7 @@ export class CharacterController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Patch()
+  @Patch(routesV1.character.update)
   async editCharacter(
     @Token() user: UserDTO,
     @Body() body: CharacterEditRequestDTO,
@@ -138,7 +141,7 @@ export class CharacterController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Post('block')
+  @Post(routesV1.character.block)
   async blockCharacter(
     @Token() user: UserDTO,
     @Body() body: CharacterBlockRequestDTO,
@@ -163,7 +166,7 @@ export class CharacterController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Get()
+  @Get(routesV1.character.main)
   async getCharactersFromMain(
     @Token() user: UserDTO,
   ): Promise<ResponseEntity<CharacterGetFromMainResponseDTO[]>> {
@@ -192,7 +195,7 @@ export class CharacterController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Get('list')
+  @Get(routesV1.character.list)
   async getCharactersWithSort(
     @Token() user: UserDTO,
     @Query('sort') sort: SortType,
@@ -201,6 +204,36 @@ export class CharacterController {
     return ResponseEntity.OK_WITH_DATA(
       rm.READ_CHARACTERS_LIST_SUCCESS,
       characters,
+    );
+  }
+
+  @ApiOperation({
+    summary: '캐츄 정보를 조회합니다',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '캐츄 조회에 성공했습니다.',
+    type: CharacterGetListSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.character.detail)
+  async getCharacterDetail(
+    @Token() user: UserDTO,
+    @Param() params: CharacterIdParamsDTO,
+  ): Promise<ResponseEntity<CharactersResponseDTO>> {
+    const character = await this.characterService.getCharacterDetail(
+      params.character_id,
+    );
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_CHARACTER_DETAIL_SUCCESS,
+      character,
     );
   }
 }
