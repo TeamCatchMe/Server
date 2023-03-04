@@ -19,8 +19,8 @@ export class ActivityService {
   ) {}
 
   async getCalender(userId: number, startDate: string, endDate: string) {
-    const start = dayjs(startDate, 'YYYYMMDD').toDate();
-    const end = dayjs(endDate, 'YYYYMMDD').toDate();
+    const start = dayjs(startDate, 'YYYYMMDD').add(9, 'h').toDate();
+    const end = dayjs(endDate, 'YYYYMMDD').add(9, 'h').toDate();
     return await this.activityRepository.findBetweenDateAndDate(
       userId,
       start,
@@ -29,8 +29,7 @@ export class ActivityService {
   }
 
   async getSpecificDate(userId: number, date: string) {
-    const target = dayjs(date, 'YYYYMMDD').toDate();
-    console.log(target);
+    const target = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
     return await this.activityRepository.findByDate(userId, target);
   }
 
@@ -41,7 +40,7 @@ export class ActivityService {
     date: string,
     image?: string,
   ) {
-    const activityDate = dayjs(date, 'YYYYMMDD').toDate();
+    const activityDate = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
     const activity = await this.activityRepository.create(
       userId,
       characterId,
@@ -66,7 +65,7 @@ export class ActivityService {
     if (activity.user_id !== userId)
       throw new ConflictException(rm.UNAUTHORIZED);
 
-    const activityDate = dayjs(date, 'YYYYMMDD').toDate();
+    const activityDate = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
     return await this.activityRepository.update(
       activityId,
       content,
