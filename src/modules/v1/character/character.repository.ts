@@ -256,6 +256,32 @@ export default class CharacterRepository
     return characterDetail;
   }
 
+  async getCharactersForLookingList(): Promise<any> {
+    const characters = await this.prisma.character.findMany({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        level: true,
+        User: { select: { id: true, nickname: true } },
+        Activity: {
+          select: {
+            id: true,
+            content: true,
+            image: true,
+            date: true,
+          },
+          orderBy: {
+            date: 'desc',
+          },
+          take: 1,
+        },
+      },
+    });
+    console.info(characters);
+    return;
+  }
+
   //   async delete(userId: number): Promise<void> {
   //     await this.prisma.user.delete({
   //       where: { id: userId },

@@ -42,6 +42,7 @@ export interface CharacterRepositoryInterface
   findCharacterDetailWithId(
     characterId: number,
   ): Promise<CharactersResponseDTO>;
+  getCharactersForLookingList(): Promise<any>;
   // findById(id: number): Promise<Character>;
   // create(
   //   social: SocialPlatform,

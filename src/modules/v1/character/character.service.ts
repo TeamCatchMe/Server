@@ -132,6 +132,7 @@ export class CharacterService {
     const character = await this.characterRepository.findCharacterDetailWithId(
       characterId,
     );
+    await this.characterRepository.getCharactersForLookingList();
 
     return character;
   }
