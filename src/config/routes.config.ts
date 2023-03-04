@@ -3,6 +3,7 @@ const V1 = 'v1';
 const AUTH_ROOT = 'auth';
 const USER_ROOT = 'user';
 const ACTIVITY_ROOT = 'activity';
+const CHARACTER_ROOT = 'character';
 
 export const routesV1 = {
   version: V1,
@@ -27,5 +28,15 @@ export const routesV1 = {
     create: `/${ACTIVITY_ROOT}/`,
     update: `/${ACTIVITY_ROOT}/:activity_id`,
     delete: `/${ACTIVITY_ROOT}/:activity_id`,
+  },
+
+  character: {
+    root: CHARACTER_ROOT,
+    create: `/${CHARACTER_ROOT}/`,
+    update: `/${CHARACTER_ROOT}/`,
+    main: `/${CHARACTER_ROOT}/`,
+    block: `/${CHARACTER_ROOT}/block`,
+    list: `/${CHARACTER_ROOT}/list`,
+    detail: `/${CHARACTER_ROOT}/detail/:character_id`,
   },
 } as const;

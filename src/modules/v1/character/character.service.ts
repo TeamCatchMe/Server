@@ -121,4 +121,13 @@ export class CharacterService {
 
     return characters;
   }
+
+  async getCharacterDetail(characterId: number) {
+    const character = await this.characterRepository.findCharacterDetailWithId(
+      characterId,
+    );
+    await this.characterRepository.getCharactersForLookingList();
+
+    return character;
+  }
 }

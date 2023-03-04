@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Character } from '@prisma/client';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { CharacterGetDetailResponseDTO } from './dto/character-get-detail.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { CharacterRepositoryInterface } from './interfaces/character-repository.interface';
@@ -122,7 +123,9 @@ export default class CharacterRepository
     return mainCharacters;
   }
 
-  async findCharactersOrderByMost(userId: number): Promise<any> {
+  async findCharactersOrderByMost(
+    userId: number,
+  ): Promise<CharactersResponseDTO[]> {
     const charactersOrderedByActivityCount =
       await this.prisma.character.findMany({
         include: {
@@ -148,7 +151,9 @@ export default class CharacterRepository
     return characters;
   }
 
-  async findCharactersOrderByRecent(userId: number): Promise<any> {
+  async findCharactersOrderByRecent(
+    userId: number,
+  ): Promise<CharactersResponseDTO[]> {
     const charactersWithActivities = await this.prisma.character.findMany({
       include: {
         Activity: {
@@ -183,7 +188,9 @@ export default class CharacterRepository
     return characters;
   }
 
-  async findCharactersOrderByBirth(userId: number): Promise<any> {
+  async findCharactersOrderByBirth(
+    userId: number,
+  ): Promise<CharactersResponseDTO[]> {
     const characters = await this.prisma.character.findMany({
       select: { id: true, name: true, type: true, level: true },
       orderBy: {
@@ -192,6 +199,87 @@ export default class CharacterRepository
       where: { user_id: userId },
     });
     return characters;
+  }
+
+  async findCharacterDetailWithId(
+    characterId: number,
+  ): Promise<CharacterGetDetailResponseDTO> {
+    const character = await this.prisma.character.findFirst({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        level: true,
+        is_public: true,
+        user_id: true,
+        created_at: true,
+
+        _count: {
+          select: { Activity: true },
+        },
+      },
+      where: {
+        id: characterId,
+      },
+    });
+
+    const characters = await this.prisma.character.findMany({
+      select: {
+        _count: {
+          select: { Activity: true },
+        },
+      },
+      where: {
+        user_id: character.user_id,
+      },
+    });
+    const totalActivityCount = characters.reduce((acc, cur) => {
+      acc += cur._count.Activity;
+      return acc;
+    }, 0);
+
+    const catchu_rate = Math.round(
+      (character._count.Activity / totalActivityCount) * 100,
+    );
+
+    const characterDetail = {
+      id: character.id,
+      name: character.name,
+      type: character.type,
+      level: character.level,
+      is_public: character.is_public,
+      created_at: character.created_at,
+      activity_count: character._count.Activity,
+      cachu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
+    };
+
+    return characterDetail;
+  }
+
+  async getCharactersForLookingList(): Promise<any> {
+    const characters = await this.prisma.character.findMany({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        level: true,
+        User: { select: { id: true, nickname: true } },
+        Activity: {
+          select: {
+            id: true,
+            content: true,
+            image: true,
+            date: true,
+          },
+          orderBy: {
+            date: 'desc',
+          },
+          take: 1,
+        },
+      },
+    });
+    console.info(characters);
+    return;
   }
 
   //   async delete(userId: number): Promise<void> {

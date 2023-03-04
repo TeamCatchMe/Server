@@ -38,6 +38,11 @@ export interface CharacterRepositoryInterface
   findCharactersOrderByMost(userId: number): Promise<CharactersResponseDTO[]>;
   findCharactersOrderByRecent(userId: number): Promise<CharactersResponseDTO[]>;
   findCharactersOrderByBirth(userId: number): Promise<CharactersResponseDTO[]>;
+
+  findCharacterDetailWithId(
+    characterId: number,
+  ): Promise<CharactersResponseDTO>;
+  getCharactersForLookingList(): Promise<any>;
   // findById(id: number): Promise<Character>;
   // create(
   //   social: SocialPlatform,
