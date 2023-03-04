@@ -1,5 +1,8 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
+import { ActivityCreateSuccess } from '@common/constants/swagger/domain/activity/ActivityCreateSuccess';
+import { ActivityDeleteSuccess } from '@common/constants/swagger/domain/activity/ActivityDeleteSuccess';
+import { ActivityUpdateSuccess } from '@common/constants/swagger/domain/activity/ActivityUpdateSuccess';
 import { UserPatchNicknameSuccess } from '@common/constants/swagger/domain/user/UserPatchNicknameSuccess';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
@@ -32,6 +35,7 @@ import {
 import dayjs from 'dayjs';
 import CustomParseFormat from 'dayjs/plugin/customParseFormat';
 import { UserDTO } from '../user/dto/user.dto';
+import { ActivityCharacterGetSuccess } from './../../../common/constants/swagger/domain/activity/ActivityCharacterGetSuccess';
 import { ActivityService } from './activity.service';
 import { ActivityCharacterParamsDTO } from './dto/activity-character.params.dto';
 import { ActivityCreateRequestDto } from './dto/activity-create.req.dto';
@@ -54,7 +58,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: '캘린더 조회에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityCharacterGetSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -77,13 +81,13 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
+  // todo 체크 필요
   @ApiOperation({
     summary: '특정 일자의 캐릭터를 조회합니다.',
     description: ``,
   })
   @ApiOkResponse({
     description: '캘린더 조회에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -105,9 +109,13 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
+  //todo 체크 필요
   @ApiOperation({
     summary: '특정 캐릭터의 활동들을 조회합니다.',
-    description: ``,
+    description: `
+    Params로 특정 캐릭터의 id를 받고 해당 캐릭터로 작성했던 
+    삭제되지 않은 모든 활동들을 조회합니다.
+    `,
   })
   @ApiOkResponse({
     description: '캐릭터 활동 조회에 성공했습니다.',
@@ -160,7 +168,7 @@ export class ActivityController {
   })
   @ApiCreatedResponse({
     description: '활동 작성에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityCreateSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -187,7 +195,6 @@ export class ActivityController {
     return ResponseEntity.CREATED_WITH_DATA(rm.CREATE_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [PATCH] 활동 수정
   @ApiOperation({
     summary: '특정 활동을 수정합니다.',
     description: `
@@ -212,7 +219,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: '활동 수정에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityUpdateSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -241,7 +248,6 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.UPDATE_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [DELETE] 활동 삭제
   @ApiOperation({
     summary: '특정 활동을 삭제합니다.',
     description: `
@@ -251,7 +257,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: '활동 삭제에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityDeleteSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
