@@ -41,6 +41,7 @@ import { ActivityCharacterParamsDTO } from './dto/activity-character.params.dto'
 import { ActivityCreateRequestDto } from './dto/activity-create.req.dto';
 import { ActivityDateParamsDTO } from './dto/activity-date.params.dto';
 import { ActivityUpdateRequestDto } from './dto/activity-update.req.dto';
+import { ActivityDto } from './dto/activity.dto';
 import { ActivityParamsDto } from './dto/activity.params.dto';
 import { ActivityQueryDTO } from './dto/activity.query.dto';
 dayjs.extend(CustomParseFormat);
@@ -52,6 +53,7 @@ dayjs.extend(CustomParseFormat);
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}
 
+  // todo 체크 필요
   @ApiOperation({
     summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
     description: ``,
@@ -109,7 +111,6 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
-  //todo 체크 필요
   @ApiOperation({
     summary: '특정 캐츄의 활동들을 조회합니다.',
     description: `
@@ -132,7 +133,7 @@ export class ActivityController {
   @Get(routesV1.activity.character)
   async getCharacterActivities(
     @Param() params: ActivityCharacterParamsDTO,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<ActivityDto[]>> {
     const data = await this.activityService.getActivitiesByCharacterId(
       params.character_id,
     );
@@ -183,7 +184,7 @@ export class ActivityController {
     @Token() user: UserDTO,
     @Body() body: ActivityCreateRequestDto,
     @UploadedFile() file?: any,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<ActivityDto>> {
     const url = file ? file.transforms[0].location : null;
     const data = await this.activityService.createActivity(
       user.id,
@@ -235,7 +236,7 @@ export class ActivityController {
     @Param() params: ActivityParamsDto,
     @UploadedFile() file: any,
     @Body() body: ActivityUpdateRequestDto,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<ActivityDto>> {
     const url = file.transforms[0].location;
     const data = await this.activityService.updateActivity(
       user.id,
@@ -253,6 +254,7 @@ export class ActivityController {
     description: `
     Params로 받은 index에 해당하는 활동 데이터를 삭제합니다. \n
     헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
+    삭제된 활동은 복구가 가능합니다.
     `,
   })
   @ApiOkResponse({
@@ -271,7 +273,7 @@ export class ActivityController {
   async deleteActivity(
     @Token() user: UserDTO,
     @Param() params: ActivityParamsDto,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<string>> {
     await this.activityService.deleteActivity(user.id, params.activity_id);
     return ResponseEntity.OK_WITH(rm.DELETE_ACTIVITY_SUCCESS);
   }
