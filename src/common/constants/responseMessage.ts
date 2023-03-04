@@ -11,6 +11,7 @@ export default {
   SIGNUP_SUCCESS: '회원 가입 성공',
   SIGNUP_FAIL: '회원 가입 실패',
   SIGNIN_SUCCESS: '로그인 성공',
+  SIGNIN_ACCEPTED: '회원가입이 필요합니다.',
   SIGNIN_FAIL: '로그인 실패',
   UNAUTHORIZED_SOCIAL: '유효하지 않은 소셜 유저입니다.',
   ALREADY_SIGNED_USER: '이미 가입한 유저입니다.',

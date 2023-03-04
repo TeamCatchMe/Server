@@ -29,8 +29,9 @@ export class AuthService {
   ) {}
 
   async login(uuid: string) {
+    //todo uuid에 해당하는 유저가 존재하지 않는 경우 success, statusCode 변경
     const user = await this.authRepository.findByUuid(uuid);
-    if (!user) throw new NotFoundException(rm.NO_USER_UUID);
+    if (!user) return null;
 
     const jwtPayload: JwtPayload = { ...user };
     const newAccessToken = this.jwt.getAccessToken(jwtPayload);

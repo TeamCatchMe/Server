@@ -9,7 +9,7 @@ export class AuthSignupSuccess extends PickType(CREATED_TYPE, [
   @ApiProperty({
     type: 'string',
     title: '성공 메시지',
-    example: '소셜 회원가입 성공',
+    example: '회원 가입 성공',
   })
   message: string;
 
