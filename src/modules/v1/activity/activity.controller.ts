@@ -83,7 +83,7 @@ export class ActivityController {
 
   // todo 체크 필요
   @ApiOperation({
-    summary: '특정 일자의 캐릭터를 조회합니다.',
+    summary: '특정 일자의 캐츄를 조회합니다.',
     description: ``,
   })
   @ApiOkResponse({
@@ -111,14 +111,14 @@ export class ActivityController {
 
   //todo 체크 필요
   @ApiOperation({
-    summary: '특정 캐릭터의 활동들을 조회합니다.',
+    summary: '특정 캐츄의 활동들을 조회합니다.',
     description: `
-    Params로 특정 캐릭터의 id를 받고 해당 캐릭터로 작성했던 
+    Params로 특정 캐츄의 id를 받고 해당 캐츄로 작성했던 
     삭제되지 않은 모든 활동들을 조회합니다.
     `,
   })
   @ApiOkResponse({
-    description: '캐릭터 활동 조회에 성공했습니다.',
+    description: '캐츄 활동 조회에 성공했습니다.',
     type: UserPatchNicknameSuccess,
   })
   @ApiUnauthorizedResponse({
