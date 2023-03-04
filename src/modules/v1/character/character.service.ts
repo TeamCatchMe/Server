@@ -1,11 +1,5 @@
 import { rm } from '@common/constants';
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { Character } from '@prisma/client';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import {
   BlockRepositoryInterface,
   BLOCK_REPOSITORY,

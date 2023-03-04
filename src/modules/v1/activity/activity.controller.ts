@@ -113,6 +113,7 @@ export class ActivityController {
     description: `
     이미지 파일이 아닌 경우엔 400 에러를 출력합니다. \n
     헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
+    이미지 파일을 포함하지 않는 경우 요청 바디에 file 프로퍼티를 제외해야 합니다.
     `,
   })
   @ApiBody({
@@ -149,9 +150,9 @@ export class ActivityController {
   async createActivity(
     @Token() user: UserDTO,
     @Body() body: ActivityCreateRequestDto,
-    @UploadedFile() file?: Express.MulterS3.File,
+    @UploadedFile() file?: any,
   ): Promise<ResponseEntity<any>> {
-    const url = file ? file.location : null;
+    const url = file ? file.transforms[0].location : null;
     const data = await this.activityService.createActivity(
       user.id,
       body.character_id,
@@ -165,7 +166,10 @@ export class ActivityController {
   //todo [PATCH] 활동 수정
   @ApiOperation({
     summary: '특정 활동을 수정합니다.',
-    description: ``,
+    description: `
+    이미지 파일을 필수로 받고, 이미지 파일이 아닌 경우엔 400 에러를 출력합니다. \n
+    헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
+    `,
   })
   @ApiBody({
     schema: {
@@ -198,10 +202,10 @@ export class ActivityController {
   async updateActivity(
     @Token() user: UserDTO,
     @Param() params: ActivityParamsDto,
-    @UploadedFile() file: Express.MulterS3.File,
+    @UploadedFile() file: any,
     @Body() body: ActivityUpdateRequestDto,
   ): Promise<ResponseEntity<any>> {
-    const url = file.location;
+    const url = file.transforms[0].location;
     const data = await this.activityService.updateActivity(
       user.id,
       params.activity_id,
@@ -216,7 +220,10 @@ export class ActivityController {
   //todo [DELETE] 활동 삭제
   @ApiOperation({
     summary: '특정 활동을 삭제합니다.',
-    description: ``,
+    description: `
+    Params로 받은 index에 해당하는 활동 데이터를 삭제합니다. \n
+    헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
+    `,
   })
   @ApiOkResponse({
     description: '활동 삭제에 성공했습니다.',
