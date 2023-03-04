@@ -33,6 +33,7 @@ import dayjs from 'dayjs';
 import CustomParseFormat from 'dayjs/plugin/customParseFormat';
 import { UserDTO } from '../user/dto/user.dto';
 import { ActivityService } from './activity.service';
+import { ActivityCharacterParamsDTO } from './dto/activity-character.params.dto';
 import { ActivityCreateRequestDto } from './dto/activity-create.req.dto';
 import { ActivityDateParamsDTO } from './dto/activity-date.params.dto';
 import { ActivityUpdateRequestDto } from './dto/activity-update.req.dto';
@@ -47,7 +48,6 @@ dayjs.extend(CustomParseFormat);
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}
 
-  //todo [GET] 캘린더 조회
   @ApiOperation({
     summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
     description: ``,
@@ -77,7 +77,6 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [GET] 특정 일자 캐릭터 조회
   @ApiOperation({
     summary: '특정 일자의 캐릭터를 조회합니다.',
     description: ``,
@@ -106,7 +105,32 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [POST] 활동 작성
+  @ApiOperation({
+    summary: '특정 캐릭터의 활동들을 조회합니다.',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '캐릭터 활동 조회에 성공했습니다.',
+    type: UserPatchNicknameSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.activity.character)
+  async getCharacterActivities(
+    @Param() params: ActivityCharacterParamsDTO,
+  ): Promise<ResponseEntity<any>> {
+    const data = await this.activityService.getActivitiesByCharacterId(
+      params.character_id,
+    );
+    return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
+  }
+
   @ApiImageFile('image')
   @ApiOperation({
     summary: '활동을 작성합니다.',

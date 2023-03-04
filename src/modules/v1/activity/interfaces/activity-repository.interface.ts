@@ -11,6 +11,7 @@ export interface ActivityRepositoryInterface
     startDate: Date,
     endDate: Date,
   ): Promise<Activity[]>;
+  findByCharacterId(characterId: number): Promise<Activity[]>;
   create(
     userId: number,
     characterId: number,
