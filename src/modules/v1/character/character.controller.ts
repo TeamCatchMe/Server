@@ -14,6 +14,7 @@ import { routesV1 } from '@config/routes.config';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Logger,
@@ -235,5 +236,34 @@ export class CharacterController {
       rm.READ_CHARACTER_DETAIL_SUCCESS,
       character,
     );
+  }
+
+  @ApiOperation({
+    summary: '캐츄를 삭제합니다',
+    description: `
+    특정 캐츄의 id를 Param으로 받고, 해당 캐릭터를 삭제합니다.
+    또한 해당 캐츄가 작성했던 모든 활동들도 삭제됩니다.
+    삭제된 캐츄 및 활동은 복구가 가능합니다.
+    `,
+  })
+  @ApiOkResponse({
+    description: '캐츄 삭제에 성공했습니다.',
+    type: CharacterGetListSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Delete(routesV1.character.delete)
+  async deleteCharacter(
+    @Token() user: UserDTO,
+    @Param() params: CharacterIdParamsDTO,
+  ): Promise<ResponseEntity<string>> {
+    await this.characterService.deleteCharacter(user.id, params.character_id);
+    return ResponseEntity.OK_WITH(rm.DELETE_CHARACTER_SUCCESS);
   }
 }
