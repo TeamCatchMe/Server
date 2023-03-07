@@ -43,12 +43,6 @@ export interface CharacterRepositoryInterface
     characterId: number,
   ): Promise<CharactersResponseDTO>;
   getCharactersForLookingList(): Promise<any>;
-  // findById(id: number): Promise<Character>;
-  // create(
-  //   social: SocialPlatform,
-  //   uuid: string,
-  //   nickname: string,
-  //   refreshToken: string,
-  // ): Promise<User>;
-  // delete(userId: number): Promise<void>;
+
+  delete(characterId: number): Promise<void>;
 }

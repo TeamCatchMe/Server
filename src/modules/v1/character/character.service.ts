@@ -130,4 +130,14 @@ export class CharacterService {
 
     return character;
   }
+
+  async deleteCharacter(userId: number, characterId: number): Promise<void> {
+    const character = await this.characterRepository.findById(characterId);
+
+    if (userId !== character.user_id) {
+      throw new ConflictException(rm.NO_ACCESS_DELETE_CHARACTER);
+    }
+
+    await this.characterRepository.delete(characterId);
+  }
 }

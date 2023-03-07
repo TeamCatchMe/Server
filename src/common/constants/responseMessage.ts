@@ -62,6 +62,7 @@ export default {
   //^캐츄
   CREATE_CHARACTER_SUCCESS: '캐츄 생성 성공',
   EDIT_CHARACTER_SUCCESS: '캐츄 수정 성공',
+  DELETE_CHARACTER_SUCCESS: '캐츄 삭제 성공',
   ALREADY_CHARACTER_NAME: '이미 사용중인 캐츄 이름입니다.',
   NO_CHARACTER_ID: '존재하지 않는 캐츄 Id입니다.',
   ALREADY_BLOCKED_CHARACTER: '이미 차단한 캐츄입니다.',
@@ -69,4 +70,5 @@ export default {
   READ_CHARACTERS_FROM_MAIN_SUCCESS: '캐츄 메인 목록 조회 성공',
   READ_CHARACTERS_LIST_SUCCESS: '캐츄 메인 목록 조회 성공',
   READ_CHARACTER_DETAIL_SUCCESS: '캐츄 정보 조회 성공',
+  NO_ACCESS_DELETE_CHARACTER: '다른 유저의 캐츄는 삭제할 수 없습니다.',
 };

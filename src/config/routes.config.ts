@@ -39,5 +39,6 @@ export const routesV1 = {
     block: `/${CHARACTER_ROOT}/block`,
     list: `/${CHARACTER_ROOT}/list`,
     detail: `/${CHARACTER_ROOT}/detail/:character_id`,
+    delete: `/${CHARACTER_ROOT}/:character_id`,
   },
 } as const;

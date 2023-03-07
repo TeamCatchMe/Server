@@ -282,9 +282,24 @@ export default class CharacterRepository
     return;
   }
 
-  //   async delete(userId: number): Promise<void> {
-  //     await this.prisma.user.delete({
-  //       where: { id: userId },
-  //     });
-  //   }
+  async delete(characterId: number): Promise<void> {
+    await this.prisma.character.update({
+      where: {
+        id: characterId,
+      },
+      data: {
+        is_delete: true,
+        Activity: {
+          updateMany: {
+            where: {
+              is_delete: false,
+            },
+            data: {
+              is_delete: true,
+            },
+          },
+        },
+      },
+    });
+  }
 }
