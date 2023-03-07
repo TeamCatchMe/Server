@@ -33,6 +33,10 @@ export class ActivityService {
     return await this.activityRepository.findByDate(userId, target);
   }
 
+  async getActivitiesByCharacterId(characterId: number) {
+    return await this.activityRepository.findByCharacterId(characterId);
+  }
+
   async createActivity(
     userId: number,
     characterId: number,

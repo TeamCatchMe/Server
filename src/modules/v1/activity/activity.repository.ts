@@ -33,6 +33,15 @@ export class ActivityRepository implements ActivityRepositoryInterface {
     });
   }
 
+  async findByCharacterId(characterId: number): Promise<Activity[]> {
+    return await this.prisma.activity.findMany({
+      where: {
+        character_id: characterId,
+        is_delete: false,
+      },
+    });
+  }
+
   async findBetweenDateAndDate(
     userId: number,
     startDate: Date,

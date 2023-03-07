@@ -11,7 +11,7 @@ import {
 
 export class CharacterDTO {
   @ApiProperty({
-    description: '캐릭터의 id 값',
+    description: '캐츄의 id 값',
     required: true,
   })
   @IsNumber()

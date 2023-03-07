@@ -1,5 +1,8 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
+import { ActivityCreateSuccess } from '@common/constants/swagger/domain/activity/ActivityCreateSuccess';
+import { ActivityDeleteSuccess } from '@common/constants/swagger/domain/activity/ActivityDeleteSuccess';
+import { ActivityUpdateSuccess } from '@common/constants/swagger/domain/activity/ActivityUpdateSuccess';
 import { UserPatchNicknameSuccess } from '@common/constants/swagger/domain/user/UserPatchNicknameSuccess';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
@@ -32,10 +35,13 @@ import {
 import dayjs from 'dayjs';
 import CustomParseFormat from 'dayjs/plugin/customParseFormat';
 import { UserDTO } from '../user/dto/user.dto';
+import { ActivityCharacterGetSuccess } from './../../../common/constants/swagger/domain/activity/ActivityCharacterGetSuccess';
 import { ActivityService } from './activity.service';
+import { ActivityCharacterParamsDTO } from './dto/activity-character.params.dto';
 import { ActivityCreateRequestDto } from './dto/activity-create.req.dto';
 import { ActivityDateParamsDTO } from './dto/activity-date.params.dto';
 import { ActivityUpdateRequestDto } from './dto/activity-update.req.dto';
+import { ActivityDto } from './dto/activity.dto';
 import { ActivityParamsDto } from './dto/activity.params.dto';
 import { ActivityQueryDTO } from './dto/activity.query.dto';
 dayjs.extend(CustomParseFormat);
@@ -47,14 +53,14 @@ dayjs.extend(CustomParseFormat);
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}
 
-  //todo [GET] 캘린더 조회
+  // todo 체크 필요
   @ApiOperation({
     summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
     description: ``,
   })
   @ApiOkResponse({
     description: '캘린더 조회에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityCharacterGetSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -77,14 +83,13 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [GET] 특정 일자 캐릭터 조회
+  // todo 체크 필요
   @ApiOperation({
-    summary: '특정 일자의 캐릭터를 조회합니다.',
+    summary: '특정 일자의 캐츄를 조회합니다.',
     description: ``,
   })
   @ApiOkResponse({
     description: '캘린더 조회에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -106,7 +111,35 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [POST] 활동 작성
+  @ApiOperation({
+    summary: '특정 캐츄의 활동들을 조회합니다.',
+    description: `
+    Params로 특정 캐츄의 id를 받고 해당 캐츄로 작성했던 
+    삭제되지 않은 모든 활동들을 조회합니다.
+    `,
+  })
+  @ApiOkResponse({
+    description: '캐츄 활동 조회에 성공했습니다.',
+    type: UserPatchNicknameSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.activity.character)
+  async getCharacterActivities(
+    @Param() params: ActivityCharacterParamsDTO,
+  ): Promise<ResponseEntity<ActivityDto[]>> {
+    const data = await this.activityService.getActivitiesByCharacterId(
+      params.character_id,
+    );
+    return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
+  }
+
   @ApiImageFile('image')
   @ApiOperation({
     summary: '활동을 작성합니다.',
@@ -136,7 +169,7 @@ export class ActivityController {
   })
   @ApiCreatedResponse({
     description: '활동 작성에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityCreateSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -151,7 +184,7 @@ export class ActivityController {
     @Token() user: UserDTO,
     @Body() body: ActivityCreateRequestDto,
     @UploadedFile() file?: any,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<ActivityDto>> {
     const url = file ? file.transforms[0].location : null;
     const data = await this.activityService.createActivity(
       user.id,
@@ -163,7 +196,6 @@ export class ActivityController {
     return ResponseEntity.CREATED_WITH_DATA(rm.CREATE_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [PATCH] 활동 수정
   @ApiOperation({
     summary: '특정 활동을 수정합니다.',
     description: `
@@ -188,7 +220,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: '활동 수정에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityUpdateSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -204,7 +236,7 @@ export class ActivityController {
     @Param() params: ActivityParamsDto,
     @UploadedFile() file: any,
     @Body() body: ActivityUpdateRequestDto,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<ActivityDto>> {
     const url = file.transforms[0].location;
     const data = await this.activityService.updateActivity(
       user.id,
@@ -217,17 +249,17 @@ export class ActivityController {
     return ResponseEntity.OK_WITH_DATA(rm.UPDATE_ACTIVITY_SUCCESS, data);
   }
 
-  //todo [DELETE] 활동 삭제
   @ApiOperation({
     summary: '특정 활동을 삭제합니다.',
     description: `
     Params로 받은 index에 해당하는 활동 데이터를 삭제합니다. \n
     헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
+    삭제된 활동은 복구가 가능합니다.
     `,
   })
   @ApiOkResponse({
     description: '활동 삭제에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityDeleteSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -241,7 +273,7 @@ export class ActivityController {
   async deleteActivity(
     @Token() user: UserDTO,
     @Param() params: ActivityParamsDto,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<string>> {
     await this.activityService.deleteActivity(user.id, params.activity_id);
     return ResponseEntity.OK_WITH(rm.DELETE_ACTIVITY_SUCCESS);
   }

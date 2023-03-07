@@ -25,6 +25,7 @@ export const routesV1 = {
     root: ACTIVITY_ROOT,
     calender: `/${ACTIVITY_ROOT}/`,
     specificDate: `/${ACTIVITY_ROOT}/:date`,
+    character: `/${ACTIVITY_ROOT}/character/:character_id`,
     create: `/${ACTIVITY_ROOT}/`,
     update: `/${ACTIVITY_ROOT}/:activity_id`,
     delete: `/${ACTIVITY_ROOT}/:activity_id`,
