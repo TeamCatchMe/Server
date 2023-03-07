@@ -1,5 +1,6 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
+import { AuthLoginAccepted } from '@common/constants/swagger/domain/auth/AuthAcceptedSuccess';
 import { AuthLoginSuccess } from '@common/constants/swagger/domain/auth/AuthLoginSuccess';
 import { AuthSignupSuccess } from '@common/constants/swagger/domain/auth/AuthSignupSuccess';
 import { AuthTokenGetAccepted } from '@common/constants/swagger/domain/auth/AuthTokenGetAccepted';
@@ -46,10 +47,15 @@ import { AuthResponseDTO } from './dto/auth.res.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  //todo 소셜 회원가입
   @ApiOperation({
     summary: '회원가입을 진행합니다.',
-    description: ``,
+    description: `
+    Request Body 중
+    provider는 카카오, 애플 등 가입한 소셜 플랫폼 경로를,
+    token은 해당 provider에서 얻은 소셜 토큰을 알맞게 입력해주시면 됩니다.
+
+    ✔️ 유효하지 않는 토큰에는 Exception이 발생합니다.
+    `,
   })
   @ApiOkResponse({
     description: '회원가입에 성공했습니다.',
@@ -85,14 +91,23 @@ export class AuthController {
     return ResponseEntity.CREATED_WITH_DATA(rm.SIGNUP_SUCCESS, data);
   }
 
-  //todo 로그인
   @ApiOperation({
     summary: '로그인을 진행합니다.',
-    description: ``,
+    description: `
+    provider는 카카오, 애플 등 가입한 소셜 플랫폼 경로를,
+    token은 해당 provider에서 얻은 소셜 토큰을 알맞게 입력해주시면 됩니다.
+
+    ✔️ 유효하지 않는 토큰에는 Exception이 발생합니다.
+    ✔️ 토큰은 유효하지만 회원가입이 필요한 유저라면 202 Accepted로 응답합니다.
+    `,
   })
   @ApiOkResponse({
     description: '로그인에 성공했습니다.',
     type: AuthLoginSuccess,
+  })
+  @ApiAcceptedResponse({
+    description: '토큰은 유효하지만 가입하지 않은 유저입니다.',
+    type: AuthLoginAccepted,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -109,23 +124,25 @@ export class AuthController {
   @Post(routesV1.auth.signin)
   async login(
     @Body() body: AuthLoginRequestDTO,
-  ): Promise<ResponseEntity<AuthResponseDTO>> {
+  ): Promise<ResponseEntity<AuthResponseDTO | string>> {
     const uuid = await this.authService.getUuidFromSocialToken(
       body.provider,
       body.token,
     );
 
     const data = await this.authService.login(uuid);
+
+    if (!data) return ResponseEntity.ACCEPTED_WITH(rm.SIGNIN_ACCEPTED);
     return ResponseEntity.OK_WITH_DATA(rm.SIGNIN_SUCCESS, data);
   }
 
-  //todo 토큰 재발급
   @ApiOperation({
     summary: '토큰 재발급',
     description: `
     access 토큰과 refresh 토큰이 모두 만료된 경우에 토큰을 재발급 합니다. \n
-    토큰이 유효한 경우엔 202를 출력합니다. \n
-    헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
+    
+    ✔️ 토큰이 유효한 경우엔 202를 출력합니다. \n
+    ✔️ 헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
     `,
   })
   @ApiOkResponse({
@@ -158,12 +175,14 @@ export class AuthController {
     return ResponseEntity.OK_WITH_DATA(rm.CREATE_TOKEN_SUCCESS, data);
   }
 
-  //todo 회원 탈퇴
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: '회원 탈퇴',
     description: `
-    헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
+    UserId를 받아 해당하는 유저를 삭제합니다.
+    
+    ✔️ 존재하지 않는 유저의 id를 요청하면 404 에러를 출력합니다.
+    ✔️ 헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다.
     `,
   })
   @ApiOkResponse({
