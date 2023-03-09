@@ -3,6 +3,7 @@ import { Character } from '@prisma/client';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CharacterGetDetailResponseDTO } from './dto/character-get-detail.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
+import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { CharacterRepositoryInterface } from './interfaces/character-repository.interface';
 
@@ -256,8 +257,13 @@ export default class CharacterRepository
     return characterDetail;
   }
 
-  async getCharactersForLookingList(): Promise<any> {
+  async getCharactersForLookingList(
+    offset: number,
+    limit: number,
+  ): Promise<CharactersGetLookingResponseDTO[]> {
     const characters = await this.prisma.character.findMany({
+      skip: offset,
+      take: limit,
       select: {
         id: true,
         name: true,
@@ -278,8 +284,8 @@ export default class CharacterRepository
         },
       },
     });
-    console.info(characters);
-    return;
+
+    return characters;
   }
 
   async delete(characterId: number): Promise<void> {

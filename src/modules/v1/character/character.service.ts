@@ -126,7 +126,18 @@ export class CharacterService {
     const character = await this.characterRepository.findCharacterDetailWithId(
       characterId,
     );
-    await this.characterRepository.getCharactersForLookingList();
+
+    return character;
+  }
+
+  async getCharactersForLookingList(offset: number) {
+    let limit = 10;
+    if (!offset) {
+      offset = 0;
+      limit = 100;
+    }
+    const character =
+      await this.characterRepository.getCharactersForLookingList(offset, limit);
 
     return character;
   }

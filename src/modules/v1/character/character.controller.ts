@@ -3,6 +3,7 @@ import { ResponseEntity } from '@common/constants/responseEntity';
 import { CharacterBlockSuccess } from '@common/constants/swagger/domain/character/CharacterBlockSuccess';
 import { CharacterCreateSuccess } from '@common/constants/swagger/domain/character/CharacterCreateSuccess';
 import { CharacterEditSuccess } from '@common/constants/swagger/domain/character/CharacterEditSuccess';
+import { CharacterGetLookingListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromLookingSuccess';
 import { CharacterGetListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromMainSuccess';
 import { CharacterGetFromMainSuccess } from '@common/constants/swagger/domain/character/CharactersListSuccess';
 import { ConflictError } from '@common/constants/swagger/error/ConflictError';
@@ -31,6 +32,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -41,6 +43,7 @@ import { CharacterCreateRequestDTO } from './dto/character-create.req.dto';
 import { CharacterIdParamsDTO } from './dto/character-detail.params.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
+import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { SortType } from './interfaces/sort-type';
 
@@ -234,6 +237,37 @@ export class CharacterController {
     );
     return ResponseEntity.OK_WITH_DATA(
       rm.READ_CHARACTER_DETAIL_SUCCESS,
+      character,
+    );
+  }
+
+  @ApiOperation({
+    summary: '둘러보기에서 캐츄를 조회합니다',
+    description: `offset 값은 아무것도 넣지 않으면 상위 100개의 캐츄를 조회함<br>만일 페이지네이션을 구현한다면 맨 처음에 0을 넣어 요청후, 이후로는 10씩 더해 추가로 요청하면 됨`,
+  })
+  @ApiOkResponse({
+    description: '둘러보기 캐츄 조회에 성공했습니다.',
+    type: CharacterGetLookingListSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.character.looking)
+  @ApiQuery({ name: 'offset', required: false })
+  async getCharacterLookingList(
+    @Token() user: UserDTO,
+    @Query('offset') offset: number,
+  ): Promise<ResponseEntity<CharactersGetLookingResponseDTO[]>> {
+    const character = await this.characterService.getCharactersForLookingList(
+      offset,
+    );
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_CHARACTERS_FROM_LOOKING_SUCCESS,
       character,
     );
   }

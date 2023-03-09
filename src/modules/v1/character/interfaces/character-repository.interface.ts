@@ -1,6 +1,7 @@
 import BaseRepositoryInterface from '@common/interfaces/base-repository.interface';
 import { Character } from '@prisma/client';
 import { CharacterGetFromMainResponseDTO } from '../dto/character-get-from-main.res.dto';
+import { CharactersGetLookingResponseDTO } from '../dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from '../dto/characters.res.dto';
 
 export const CHARACTER_REPOSITORY = 'CHARACTER REPOSITORY';
@@ -42,7 +43,10 @@ export interface CharacterRepositoryInterface
   findCharacterDetailWithId(
     characterId: number,
   ): Promise<CharactersResponseDTO>;
-  getCharactersForLookingList(): Promise<any>;
+  getCharactersForLookingList(
+    offset: number,
+    limit: number,
+  ): Promise<CharactersGetLookingResponseDTO[]>;
 
   delete(characterId: number): Promise<void>;
 }
