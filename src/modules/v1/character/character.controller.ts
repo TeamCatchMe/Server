@@ -48,7 +48,7 @@ import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { SortType } from './interfaces/sort-type';
 
 @ApiTags('Character API')
-@Controller('character')
+@Controller(routesV1.version)
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('Authorization')
 export class CharacterController {
