@@ -51,11 +51,12 @@ export class ActivityRepository implements ActivityRepositoryInterface {
       where: {
         user_id: userId,
         date: {
-          lte: startDate,
-          gte: endDate,
+          gte: startDate,
+          lte: endDate,
         },
         is_delete: false,
       },
+      // include: { Character: true },
     });
   }
 

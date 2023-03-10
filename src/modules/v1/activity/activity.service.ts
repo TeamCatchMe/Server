@@ -18,16 +18,6 @@ export class ActivityService {
     private readonly activityRepository: ActivityRepositoryInterface,
   ) {}
 
-  async getCalender(userId: number, startDate: string, endDate: string) {
-    const start = dayjs(startDate, 'YYYYMMDD').add(9, 'h').toDate();
-    const end = dayjs(endDate, 'YYYYMMDD').add(9, 'h').toDate();
-    return await this.activityRepository.findBetweenDateAndDate(
-      userId,
-      start,
-      end,
-    );
-  }
-
   async getSpecificDate(userId: number, date: string) {
     const target = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
     return await this.activityRepository.findByDate(userId, target);

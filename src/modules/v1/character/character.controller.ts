@@ -36,6 +36,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { ActivityQueryDTO } from '../activity/dto/activity.query.dto';
 import { UserDTO } from '../user/dto/user.dto';
 import { CharacterService } from './character.service';
 import { CharacterBlockRequestDTO } from './dto/character-block.req.dto';
@@ -300,4 +301,61 @@ export class CharacterController {
     await this.characterService.deleteCharacter(user.id, params.character_id);
     return ResponseEntity.OK_WITH(rm.DELETE_CHARACTER_SUCCESS);
   }
+
+  // todo 체크 필요
+  @ApiOperation({
+    summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '캘린더 조회에 성공했습니다.',
+    // type: ActivityCharacterGetSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.character.calender)
+  async getCalendar(
+    @Token() user: UserDTO,
+    @Query() query: ActivityQueryDTO,
+  ): Promise<ResponseEntity<any>> {
+    const data = await this.characterService.getCalender(
+      user.id,
+      query.startDate,
+      query.endDate,
+    );
+    return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
+  }
+
+  // @ApiOperation({
+  //   summary: '특정 일자의 캐츄를 조회합니다.',
+  //   description: ``,
+  // })
+  // @ApiOkResponse({
+  //   description: '캘린더 조회에 성공했습니다.',
+  // })
+  // @ApiUnauthorizedResponse({
+  //   description: '인증 되지 않은 요청입니다.',
+  //   type: UnauthorizedError,
+  // })
+  // @ApiInternalServerErrorResponse({
+  //   description: '서버 내부 오류',
+  //   type: InternalServerError,
+  // })
+  // @Get(routesV1.activity.specificDate)
+  // async getSpecificDate(
+  //   @Token() user: UserDTO,
+  //   @Param() params: ActivityDateParamsDTO,
+  // ): Promise<ResponseEntity<any>> {
+  //   const data = await this.activityService.getSpecificDate(
+  //     user.id,
+  //     params.date,
+  //   );
+  //   return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
+  // }
 }
