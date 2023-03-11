@@ -5,7 +5,7 @@ export const ACTIVITY_REPOSITORY = 'ACTIVITY REPOSITORY';
 
 export interface ActivityRepositoryInterface
   extends BaseRepositoryInterface<Activity> {
-  findByDate(userId: number, date: Date): Promise<Activity>;
+  findByDate(userId: number, date: Date): Promise<Activity[]>;
   findBetweenDateAndDate(
     userId: number,
     startDate: Date,

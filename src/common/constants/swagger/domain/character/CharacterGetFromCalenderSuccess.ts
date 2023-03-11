@@ -9,7 +9,7 @@ export class CharacterGetCalenderSuccess extends PickType(OK_TYPE, [
   @ApiProperty({
     type: 'string',
     title: '성공 메시지',
-    example: '캘린더 조회에 성공했습니다',
+    example: '캘린더 리포트 캐츄 목록 조회 성공',
   })
   message: string;
 

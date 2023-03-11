@@ -6,6 +6,7 @@ import { CharacterEditSuccess } from '@common/constants/swagger/domain/character
 import { CharacterGetCalenderSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromCalenderSuccess';
 import { CharacterGetLookingListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromLookingSuccess';
 import { CharacterGetListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromMainSuccess';
+import { CharacterGetSpecificDateSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromSpecificDateSuccess';
 import { CharacterGetFromMainSuccess } from '@common/constants/swagger/domain/character/CharactersListSuccess';
 import { ConflictError } from '@common/constants/swagger/error/ConflictError';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
@@ -37,6 +38,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { ActivityDateParamsDTO } from '../activity/dto/activity-date.params.dto';
 import { ActivityQueryDTO } from '../activity/dto/activity.query.dto';
 import { UserDTO } from '../user/dto/user.dto';
 import { CharacterService } from './character.service';
@@ -46,6 +48,7 @@ import { CharacterIdParamsDTO } from './dto/character-detail.params.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
 import { CharacterGetCalenderResponseDTO } from './dto/character-get-calender.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
+import { CharacterGetSpecificDateResponseDTO } from './dto/character-get-specificDate.res.dto';
 import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { SortType } from './interfaces/sort-type';
@@ -304,7 +307,6 @@ export class CharacterController {
     return ResponseEntity.OK_WITH(rm.DELETE_CHARACTER_SUCCESS);
   }
 
-  // todo 체크 필요
   @ApiOperation({
     summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
     description: ``,
@@ -331,33 +333,40 @@ export class CharacterController {
       query.startDate,
       query.endDate,
     );
-    return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_CALENDER_CHARACTER_SUCCESS,
+      data,
+    );
   }
 
-  // @ApiOperation({
-  //   summary: '특정 일자의 캐츄를 조회합니다.',
-  //   description: ``,
-  // })
-  // @ApiOkResponse({
-  //   description: '캘린더 조회에 성공했습니다.',
-  // })
-  // @ApiUnauthorizedResponse({
-  //   description: '인증 되지 않은 요청입니다.',
-  //   type: UnauthorizedError,
-  // })
-  // @ApiInternalServerErrorResponse({
-  //   description: '서버 내부 오류',
-  //   type: InternalServerError,
-  // })
-  // @Get(routesV1.activity.specificDate)
-  // async getSpecificDate(
-  //   @Token() user: UserDTO,
-  //   @Param() params: ActivityDateParamsDTO,
-  // ): Promise<ResponseEntity<any>> {
-  //   const data = await this.activityService.getSpecificDate(
-  //     user.id,
-  //     params.date,
-  //   );
-  //   return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
-  // }
+  @ApiOperation({
+    summary: '특정 일자의 캐츄를 조회합니다.',
+    description: ``,
+  })
+  @ApiOkResponse({
+    description: '특정 일자의 캐츄를 조회에 성공했습니다.',
+    type: CharacterGetSpecificDateSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.character.specificDate)
+  async getSpecificDate(
+    @Token() user: UserDTO,
+    @Param() params: ActivityDateParamsDTO,
+  ): Promise<ResponseEntity<CharacterGetSpecificDateResponseDTO[]>> {
+    const data = await this.characterService.getSpecificDate(
+      user.id,
+      params.date,
+    );
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_SPECIFIC_DATE_CHARACTER_SUCCESS,
+      data,
+    );
+  }
 }

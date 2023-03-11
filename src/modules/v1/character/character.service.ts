@@ -15,7 +15,7 @@ import {
   ActivityRepositoryInterface,
   ACTIVITY_REPOSITORY,
 } from '../activity/interfaces/activity-repository.interface';
-import _ from 'lodash';
+import _, { curry } from 'lodash';
 import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
 import { Character } from '@prisma/client';
 
@@ -228,5 +228,39 @@ export class CharacterService {
     }
 
     return { monthly, daily };
+  }
+
+  async getSpecificDate(userId: number, date: string) {
+    const target = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
+    const activity = await this.activityRepository.findByDate(userId, target);
+
+    const dailyActivitiesCount: { [key: string]: number } = {};
+
+    activity.map((o) => {
+      dailyActivitiesCount[o.character_id] =
+        (dailyActivitiesCount[o.character_id] || 0) + 1;
+    });
+
+    const characterIds = Object.entries(dailyActivitiesCount)
+      .sort((a, b) => b[1] - a[1])
+      .map((o) => parseInt(o[0]));
+
+    const character = await this.characterRepository.findManyForDailyCharacter(
+      characterIds,
+    );
+
+    const result: Pick<Character, 'id' | 'name' | 'type' | 'level'>[] =
+      character.reduce((acc, cur) => {
+        const characterData: Pick<Character, 'id' | 'name' | 'type' | 'level'> =
+          {
+            id: cur.id,
+            name: cur.name,
+            type: cur.type,
+            level: cur.level,
+          };
+        acc.push(characterData);
+        return acc;
+      }, []);
+    return result;
   }
 }

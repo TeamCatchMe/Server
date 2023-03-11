@@ -18,11 +18,6 @@ export class ActivityService {
     private readonly activityRepository: ActivityRepositoryInterface,
   ) {}
 
-  async getSpecificDate(userId: number, date: string) {
-    const target = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
-    return await this.activityRepository.findByDate(userId, target);
-  }
-
   async getActivitiesByCharacterId(characterId: number) {
     return await this.activityRepository.findByCharacterId(characterId);
   }

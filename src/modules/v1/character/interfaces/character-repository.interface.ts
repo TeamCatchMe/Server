@@ -10,6 +10,8 @@ export interface CharacterRepositoryInterface
   extends BaseRepositoryInterface<Character> {
   findByUserId(userId: number): Promise<Character[]>;
 
+  findManyForDailyCharacter(ids: number[]): Promise<Character[]>;
+
   findByCharacterNameAndUserId(
     userId: number,
     name: string,
