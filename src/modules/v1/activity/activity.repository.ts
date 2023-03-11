@@ -56,7 +56,6 @@ export class ActivityRepository implements ActivityRepositoryInterface {
         },
         is_delete: false,
       },
-      // include: { Character: true },
     });
   }
 

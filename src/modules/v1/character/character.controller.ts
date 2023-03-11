@@ -3,6 +3,7 @@ import { ResponseEntity } from '@common/constants/responseEntity';
 import { CharacterBlockSuccess } from '@common/constants/swagger/domain/character/CharacterBlockSuccess';
 import { CharacterCreateSuccess } from '@common/constants/swagger/domain/character/CharacterCreateSuccess';
 import { CharacterEditSuccess } from '@common/constants/swagger/domain/character/CharacterEditSuccess';
+import { CharacterGetCalenderSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromCalenderSuccess';
 import { CharacterGetLookingListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromLookingSuccess';
 import { CharacterGetListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromMainSuccess';
 import { CharacterGetFromMainSuccess } from '@common/constants/swagger/domain/character/CharactersListSuccess';
@@ -43,6 +44,7 @@ import { CharacterBlockRequestDTO } from './dto/character-block.req.dto';
 import { CharacterCreateRequestDTO } from './dto/character-create.req.dto';
 import { CharacterIdParamsDTO } from './dto/character-detail.params.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
+import { CharacterGetCalenderResponseDTO } from './dto/character-get-calender.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
 import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
@@ -309,7 +311,7 @@ export class CharacterController {
   })
   @ApiOkResponse({
     description: '캘린더 조회에 성공했습니다.',
-    // type: ActivityCharacterGetSuccess,
+    type: CharacterGetCalenderSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -323,7 +325,7 @@ export class CharacterController {
   async getCalendar(
     @Token() user: UserDTO,
     @Query() query: ActivityQueryDTO,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<CharacterGetCalenderResponseDTO>> {
     const data = await this.characterService.getCalender(
       user.id,
       query.startDate,

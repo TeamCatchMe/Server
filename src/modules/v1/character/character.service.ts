@@ -16,6 +16,8 @@ import {
   ACTIVITY_REPOSITORY,
 } from '../activity/interfaces/activity-repository.interface';
 import _ from 'lodash';
+import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
+import { Character } from '@prisma/client';
 
 @Injectable()
 export class CharacterService {
@@ -208,7 +210,7 @@ export class CharacterService {
     /**
      * 일자별 캐츄를 찾는 작업
      */
-    const daily = [];
+    const daily: DailyCharacterDataForCalenderResponseDTO[] = [];
     for (const day in dailyActivities) {
       const dailyCount = _.countBy(dailyActivities[day], 'character_id');
 
@@ -218,12 +220,13 @@ export class CharacterService {
 
       const characterData = character[dailyCharacterId][0];
       daily.push({
-        day: day,
+        day: parseInt(day),
         id: characterData.id,
         type: characterData.type,
         level: characterData.level,
       });
     }
+
     return { monthly, daily };
   }
 }
