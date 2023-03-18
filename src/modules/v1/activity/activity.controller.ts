@@ -1,6 +1,7 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
 import { ActivityCreateSuccess } from '@common/constants/swagger/domain/activity/ActivityCreateSuccess';
+import { ActivityDateGetSuccess } from '@common/constants/swagger/domain/activity/ActivityDateGetSuccess';
 import { ActivityDeleteSuccess } from '@common/constants/swagger/domain/activity/ActivityDeleteSuccess';
 import { ActivityUpdateSuccess } from '@common/constants/swagger/domain/activity/ActivityUpdateSuccess';
 import { UserPatchNicknameSuccess } from '@common/constants/swagger/domain/user/UserPatchNicknameSuccess';
@@ -34,16 +35,16 @@ import {
 } from '@nestjs/swagger';
 import dayjs from 'dayjs';
 import CustomParseFormat from 'dayjs/plugin/customParseFormat';
+import { ActivityDateAllGetSuccess } from '../../../common/constants/swagger/domain/activity/ActivityDateAllGetSuccess';
 import { UserDTO } from '../user/dto/user.dto';
-import { ActivityCharacterGetSuccess } from './../../../common/constants/swagger/domain/activity/ActivityCharacterGetSuccess';
 import { ActivityService } from './activity.service';
 import { ActivityCharacterParamsDTO } from './dto/activity-character.params.dto';
 import { ActivityCreateRequestDto } from './dto/activity-create.req.dto';
 import { ActivityDateParamsDTO } from './dto/activity-date.params.dto';
 import { ActivityUpdateRequestDto } from './dto/activity-update.req.dto';
-import { ActivityDto } from './dto/activity.dto';
 import { ActivityParamsDto } from './dto/activity.params.dto';
 import { ActivityQueryDTO } from './dto/activity.query.dto';
+import { ActivityResponseDTO } from './dto/activity.res.dto';
 dayjs.extend(CustomParseFormat);
 
 @ApiTags('Activity API')
@@ -53,14 +54,13 @@ dayjs.extend(CustomParseFormat);
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}
 
-  // todo 체크 필요
   @ApiOperation({
-    summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
+    summary: '날짜 범위 내의 활동 데이터를 조회합니다.',
     description: ``,
   })
   @ApiOkResponse({
-    description: '캘린더 조회에 성공했습니다.',
-    type: ActivityCharacterGetSuccess,
+    description: '활동 조회에 성공했습니다.',
+    type: ActivityDateAllGetSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -74,22 +74,23 @@ export class ActivityController {
   async getCalendar(
     @Token() user: UserDTO,
     @Query() query: ActivityQueryDTO,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<ActivityResponseDTO[]>> {
     const data = await this.activityService.getCalender(
       user.id,
       query.startDate,
       query.endDate,
     );
+
     return ResponseEntity.OK_WITH_DATA(rm.READ_ACTIVITY_SUCCESS, data);
   }
 
-  // todo 체크 필요
   @ApiOperation({
-    summary: '특정 일자의 캐츄를 조회합니다.',
+    summary: '특정 일자의 활동을 조회합니다.',
     description: ``,
   })
   @ApiOkResponse({
-    description: '캘린더 조회에 성공했습니다.',
+    description: '특정 일자 활동 조회에 성공했습니다.',
+    type: ActivityDateGetSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -103,7 +104,7 @@ export class ActivityController {
   async getSpecificDate(
     @Token() user: UserDTO,
     @Param() params: ActivityDateParamsDTO,
-  ): Promise<ResponseEntity<any>> {
+  ): Promise<ResponseEntity<ActivityResponseDTO>> {
     const data = await this.activityService.getSpecificDate(
       user.id,
       params.date,
@@ -133,7 +134,7 @@ export class ActivityController {
   @Get(routesV1.activity.character)
   async getCharacterActivities(
     @Param() params: ActivityCharacterParamsDTO,
-  ): Promise<ResponseEntity<ActivityDto[]>> {
+  ): Promise<ResponseEntity<ActivityResponseDTO[]>> {
     const data = await this.activityService.getActivitiesByCharacterId(
       params.character_id,
     );
@@ -184,7 +185,7 @@ export class ActivityController {
     @Token() user: UserDTO,
     @Body() body: ActivityCreateRequestDto,
     @UploadedFile() file?: any,
-  ): Promise<ResponseEntity<ActivityDto>> {
+  ): Promise<ResponseEntity<ActivityResponseDTO>> {
     const url = file ? file.transforms[0].location : null;
     const data = await this.activityService.createActivity(
       user.id,
@@ -236,7 +237,7 @@ export class ActivityController {
     @Param() params: ActivityParamsDto,
     @UploadedFile() file: any,
     @Body() body: ActivityUpdateRequestDto,
-  ): Promise<ResponseEntity<ActivityDto>> {
+  ): Promise<ResponseEntity<ActivityResponseDTO>> {
     const url = file.transforms[0].location;
     const data = await this.activityService.updateActivity(
       user.id,
