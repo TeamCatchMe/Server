@@ -1,4 +1,4 @@
-import { ActivityDto } from '@modules/v1/activity/dto/activity.dto';
+import { ActivityResponseDTO } from '@modules/v1/activity/dto/activity.res.dto';
 import { ApiExtraModels, ApiProperty, PickType } from '@nestjs/swagger';
 import { CREATED_TYPE } from 'src/common/constants';
 
@@ -14,7 +14,7 @@ export class ActivityCreateSuccess extends PickType(CREATED_TYPE, [
   message: string;
 
   @ApiProperty({
-    type: ActivityDto,
+    type: ActivityResponseDTO,
   })
-  data: ActivityDto;
+  data: ActivityResponseDTO;
 }
