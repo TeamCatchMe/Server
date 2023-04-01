@@ -1,9 +1,9 @@
-import { ActivityDto } from '@modules/v1/activity/dto/activity.dto';
+import { ActivityResponseDTO } from '@modules/v1/activity/dto/activity.res.dto';
 import { ApiExtraModels, ApiProperty, PickType } from '@nestjs/swagger';
 import { OK_TYPE } from 'src/common/constants';
 
 @ApiExtraModels()
-export class ActivityCharacterGetSuccess extends PickType(OK_TYPE, [
+export class ActivityDateGetSuccess extends PickType(OK_TYPE, [
   'status',
 ] as const) {
   @ApiProperty({
@@ -14,8 +14,7 @@ export class ActivityCharacterGetSuccess extends PickType(OK_TYPE, [
   message: string;
 
   @ApiProperty({
-    type: ActivityDto,
-    isArray: true,
+    type: ActivityResponseDTO,
   })
-  data: ActivityDto[];
+  data: ActivityResponseDTO;
 }

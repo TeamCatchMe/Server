@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import dayjs from 'dayjs';
+import { ActivityResponseDTO } from './dto/activity.res.dto';
 import {
   ActivityRepositoryInterface,
   ACTIVITY_REPOSITORY,
@@ -19,7 +20,10 @@ export class ActivityService {
   ) {}
 
   async getActivitiesByCharacterId(characterId: number) {
-    return await this.activityRepository.findByCharacterId(characterId);
+    const activities = await this.activityRepository.findAllByCharacterId(
+      characterId,
+    );
+    return activities.map((activity) => new ActivityResponseDTO(activity));
   }
 
   async createActivity(
@@ -38,7 +42,7 @@ export class ActivityService {
       image ? image : null,
     );
 
-    return activity;
+    return new ActivityResponseDTO(activity);
   }
 
   async updateActivity(
@@ -55,12 +59,14 @@ export class ActivityService {
       throw new ConflictException(rm.UNAUTHORIZED);
 
     const activityDate = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
-    return await this.activityRepository.update(
+    const updatedActivity = await this.activityRepository.update(
       activityId,
       content,
       activityDate,
       image ? image : null,
     );
+
+    return new ActivityResponseDTO(updatedActivity);
   }
 
   async deleteActivity(userId: number, activityId: number) {

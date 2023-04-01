@@ -2,21 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { Activity } from '@prisma/client';
 import dayjs from 'dayjs';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { ActivityDto } from './dto/activity.dto';
 import { ActivityRepositoryInterface } from './interfaces/activity-repository.interface';
 
 @Injectable()
 export class ActivityRepository implements ActivityRepositoryInterface {
   constructor(private readonly prisma: PrismaService) {}
-
-  async findById(id: number): Promise<Activity> {
+  async findById(id: number): Promise<ActivityDto> {
     return await this.prisma.activity.findFirst({
       where: {
         id,
-        is_delete: false, //todo 이후에 soft delete 처리를 위한 미들웨어를 만들던가 해야함
+        is_delete: false, //TODO 이후에 soft delete 처리를 위한 미들웨어를 만들던가 해야함
       },
     });
   }
-  async findAll(): Promise<Activity[]> {
+
+  async findAll(): Promise<ActivityDto[]> {
     return await this.prisma.activity.findMany({
       where: {
         is_delete: false,
@@ -34,7 +35,7 @@ export class ActivityRepository implements ActivityRepositoryInterface {
     });
   }
 
-  async findByCharacterId(characterId: number): Promise<Activity[]> {
+  async findAllByCharacterId(characterId: number): Promise<ActivityDto[]> {
     return await this.prisma.activity.findMany({
       where: {
         character_id: characterId,
@@ -43,11 +44,11 @@ export class ActivityRepository implements ActivityRepositoryInterface {
     });
   }
 
-  async findBetweenDateAndDate(
+  async findAllBetweenDateAndDate(
     userId: number,
     startDate: Date,
     endDate: Date,
-  ): Promise<Activity[]> {
+  ): Promise<ActivityDto[]> {
     return await this.prisma.activity.findMany({
       where: {
         user_id: userId,
@@ -66,7 +67,7 @@ export class ActivityRepository implements ActivityRepositoryInterface {
     content: string,
     date: Date,
     image?: string,
-  ): Promise<Activity> {
+  ): Promise<ActivityDto> {
     return await this.prisma.activity.create({
       data: {
         user_id: userId,
@@ -83,7 +84,7 @@ export class ActivityRepository implements ActivityRepositoryInterface {
     content: string,
     date: Date,
     image?: string,
-  ): Promise<Activity> {
+  ): Promise<ActivityDto> {
     return await this.prisma.activity.update({
       where: {
         id: activityId,
