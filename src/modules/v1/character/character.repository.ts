@@ -219,9 +219,8 @@ export default class CharacterRepository
     return characters;
   }
 
-  async findCharacterDetailWithId(
-    characterId: number,
-  ): Promise<CharacterGetDetailResponseDTO> {
+  async findCharacterDetailWithId(characterId: number): Promise<any> {
+    // CharacterGetDetailResponseDTO
     const character = await this.prisma.character.findFirst({
       select: {
         id: true,
@@ -231,33 +230,30 @@ export default class CharacterRepository
         is_public: true,
         user_id: true,
         created_at: true,
-
-        _count: {
-          select: { Activity: true },
-        },
       },
       where: {
         id: characterId,
       },
     });
 
-    const characters = await this.prisma.character.findMany({
-      select: {
-        _count: {
-          select: { Activity: true },
-        },
-      },
+    const characterActicitycount = await this.prisma.activity.count({
       where: {
-        user_id: character.user_id,
+        character_id: character.id,
+        is_delete: false,
       },
     });
-    const totalActivityCount = characters.reduce((acc, cur) => {
-      acc += cur._count.Activity;
-      return acc;
-    }, 0);
+
+    const userActivityCount = await this.prisma.activity.count({
+      where: {
+        is_delete: false,
+        Character: {
+          user_id: character.user_id,
+        },
+      },
+    });
 
     const catchu_rate = Math.round(
-      (character._count.Activity / totalActivityCount) * 100,
+      (characterActicitycount / userActivityCount) * 100,
     );
 
     const characterDetail = {
@@ -267,7 +263,7 @@ export default class CharacterRepository
       level: character.level,
       is_public: character.is_public,
       created_at: character.created_at,
-      activity_count: character._count.Activity,
+      activity_count: characterActicitycount,
       cachu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
     };
 
