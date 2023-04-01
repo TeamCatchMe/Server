@@ -309,7 +309,10 @@ export class CharacterController {
 
   @ApiOperation({
     summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
-    description: ``,
+    description: `
+    YYYYMMDD의 형식으로, 날짜 범위를 입력받습니다.\n
+    해당 날짜의 범위에 활동이 있는 캐츄들의 정보를 전달받습니다.\n
+    `,
   })
   @ApiOkResponse({
     description: '캘린더 조회에 성공했습니다.',
@@ -341,7 +344,10 @@ export class CharacterController {
 
   @ApiOperation({
     summary: '특정 일자의 캐츄를 조회합니다.',
-    description: ``,
+    description: `
+    YYYYMMDD의 형식으로, 특정날짜를 입력받습니다.\n
+    해당 날짜에 활동이 있는 모든 캐츄의 목록을 조회합니다\n
+    `,
   })
   @ApiOkResponse({
     description: '특정 일자의 캐츄를 조회에 성공했습니다.',

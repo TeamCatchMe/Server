@@ -172,7 +172,7 @@ export class CharacterService {
     );
 
     const character = _.groupBy(
-      await this.characterRepository.findByUserId(userId),
+      await this.characterRepository.findAllCharacterByUserId(userId),
       'id',
     );
 

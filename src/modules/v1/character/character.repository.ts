@@ -28,7 +28,7 @@ export default class CharacterRepository
     });
   }
 
-  async findByUserId(userId: number): Promise<Character[]> {
+  async findAllCharacterByUserId(userId: number): Promise<Character[]> {
     return await this.prisma.character.findMany({
       where: {
         user_id: userId,
