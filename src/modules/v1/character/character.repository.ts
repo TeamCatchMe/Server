@@ -20,6 +20,21 @@ export default class CharacterRepository
       },
     });
   }
+  async findManyForDailyCharacter(ids: number[]): Promise<Character[]> {
+    return await this.prisma.character.findMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+  }
+
+  async findAllCharacterByUserId(userId: number): Promise<Character[]> {
+    return await this.prisma.character.findMany({
+      where: {
+        user_id: userId,
+      },
+    });
+  }
 
   async findAll(): Promise<Character[]> {
     return await this.prisma.character.findMany();
@@ -308,4 +323,7 @@ export default class CharacterRepository
       },
     });
   }
+}
+function In(ids: number[]): any {
+  throw new Error('Function not implemented.');
 }

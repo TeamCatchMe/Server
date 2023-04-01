@@ -1,4 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
+import { ActivityRepository } from '../activity/activity.repository';
+import { ACTIVITY_REPOSITORY } from '../activity/interfaces/activity-repository.interface';
 import BlockRepository from '../block/block.repository';
 import { BLOCK_REPOSITORY } from '../block/interface/block-repository.interface';
 
@@ -15,11 +17,16 @@ const BlockRepositoryProvider = {
   provide: BLOCK_REPOSITORY,
   useClass: BlockRepository,
 };
+const ActivityRepositoryProvider = {
+  provide: ACTIVITY_REPOSITORY,
+  useClass: ActivityRepository,
+};
 @Module({
   controllers: [CharacterController],
   providers: [
     ClientRepositoryProvider,
     BlockRepositoryProvider,
+    ActivityRepositoryProvider,
     CharacterService,
     Logger,
   ],

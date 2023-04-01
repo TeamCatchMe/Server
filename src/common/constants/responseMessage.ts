@@ -72,4 +72,6 @@ export default {
   READ_CHARACTER_DETAIL_SUCCESS: '캐츄 정보 조회 성공',
   READ_CHARACTERS_FROM_LOOKING_SUCCESS: '캐츄 둘러보기 목록 조회 성공',
   NO_ACCESS_DELETE_CHARACTER: '다른 유저의 캐츄는 삭제할 수 없습니다.',
+  READ_CALENDER_CHARACTER_SUCCESS: '캘린더 리포트 캐츄 목록 조회 성공',
+  READ_SPECIFIC_DATE_CHARACTER_SUCCESS: '특정 일자 캐츄 조회 성공',
 };

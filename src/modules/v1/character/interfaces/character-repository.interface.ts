@@ -8,6 +8,10 @@ export const CHARACTER_REPOSITORY = 'CHARACTER REPOSITORY';
 
 export interface CharacterRepositoryInterface
   extends BaseRepositoryInterface<Character> {
+  findAllCharacterByUserId(userId: number): Promise<Character[]>;
+
+  findManyForDailyCharacter(ids: number[]): Promise<Character[]>;
+
   findByCharacterNameAndUserId(
     userId: number,
     name: string,

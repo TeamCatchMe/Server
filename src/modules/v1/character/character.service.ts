@@ -5,12 +5,19 @@ import {
   BLOCK_REPOSITORY,
 } from '../block/interface/block-repository.interface';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
-
+import dayjs from 'dayjs';
 import {
   CharacterRepositoryInterface,
   CHARACTER_REPOSITORY,
 } from './interfaces/character-repository.interface';
 import { SortType } from './interfaces/sort-type';
+import {
+  ActivityRepositoryInterface,
+  ACTIVITY_REPOSITORY,
+} from '../activity/interfaces/activity-repository.interface';
+import _, { curry } from 'lodash';
+import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
+import { Character } from '@prisma/client';
 
 @Injectable()
 export class CharacterService {
@@ -19,6 +26,8 @@ export class CharacterService {
     private readonly characterRepository: CharacterRepositoryInterface,
     @Inject(BLOCK_REPOSITORY)
     private readonly blockRepository: BlockRepositoryInterface,
+    @Inject(ACTIVITY_REPOSITORY)
+    private readonly activityRepository: ActivityRepositoryInterface,
   ) {}
 
   async createCharacter(
@@ -150,5 +159,108 @@ export class CharacterService {
     }
 
     await this.characterRepository.delete(characterId);
+  }
+
+  async getCalender(userId: number, startDate: string, endDate: string) {
+    const start = dayjs(startDate, 'YYYYMMDD').add(9, 'h').toDate();
+    const end = dayjs(endDate, 'YYYYMMDD').add(9, 'h').toDate();
+
+    const activity = await this.activityRepository.findBetweenDateAndDate(
+      userId,
+      start,
+      end,
+    );
+
+    const character = _.groupBy(
+      await this.characterRepository.findAllCharacterByUserId(userId),
+      'id',
+    );
+
+    const monthlyCharacterCount = {};
+    const dailyActivities = {};
+
+    // 조회한 activity 값들을 바탕으로, 그 달의 캐츄와 일자 별 캐츄를 찾기 위해 정보 가공
+    activity.map((o) => {
+      monthlyCharacterCount[o.character_id] =
+        (monthlyCharacterCount[o.character_id] || 0) + 1;
+      if (dailyActivities[dayjs(o.date).date()]) {
+        dailyActivities[dayjs(o.date).date()].push(o);
+      } else {
+        dailyActivities[dayjs(o.date).date()] = [o];
+      }
+    });
+
+    /**
+     * 이 달의 캐츄를 찾는 작업
+     */
+    const monthlyCharacterId = Object.keys(monthlyCharacterCount).reduce(
+      (a, b) => (monthlyCharacterCount[a] > monthlyCharacterCount[b] ? a : b),
+    );
+
+    const monthlyCharacterData = character[monthlyCharacterId][0];
+
+    const monthly = {
+      id: monthlyCharacterData.id,
+      name: monthlyCharacterData.name,
+      type: monthlyCharacterData.type,
+      level: monthlyCharacterData.level,
+      catching: monthlyCharacterCount[monthlyCharacterId],
+    };
+
+    /**
+     * 일자별 캐츄를 찾는 작업
+     */
+    const daily: DailyCharacterDataForCalenderResponseDTO[] = [];
+    for (const day in dailyActivities) {
+      const dailyCount = _.countBy(dailyActivities[day], 'character_id');
+
+      const dailyCharacterId = Object.keys(dailyCount).reduce((a, b) =>
+        dailyCount[a] > dailyCount[b] ? a : b,
+      );
+
+      const characterData = character[dailyCharacterId][0];
+      daily.push({
+        day: parseInt(day),
+        id: characterData.id,
+        type: characterData.type,
+        level: characterData.level,
+      });
+    }
+
+    return { monthly, daily };
+  }
+
+  async getSpecificDate(userId: number, date: string) {
+    const target = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
+    const activity = await this.activityRepository.findByDate(userId, target);
+
+    const dailyActivitiesCount: { [key: string]: number } = {};
+
+    activity.map((o) => {
+      dailyActivitiesCount[o.character_id] =
+        (dailyActivitiesCount[o.character_id] || 0) + 1;
+    });
+
+    const characterIds = Object.entries(dailyActivitiesCount)
+      .sort((a, b) => b[1] - a[1])
+      .map((o) => parseInt(o[0]));
+
+    const character = await this.characterRepository.findManyForDailyCharacter(
+      characterIds,
+    );
+
+    const result: Pick<Character, 'id' | 'name' | 'type' | 'level'>[] =
+      character.reduce((acc, cur) => {
+        const characterData: Pick<Character, 'id' | 'name' | 'type' | 'level'> =
+          {
+            id: cur.id,
+            name: cur.name,
+            type: cur.type,
+            level: cur.level,
+          };
+        acc.push(characterData);
+        return acc;
+      }, []);
+    return result;
   }
 }

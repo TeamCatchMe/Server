@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Activity } from '@prisma/client';
+import dayjs from 'dayjs';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { ActivityDto } from './dto/activity.dto';
 import { ActivityRepositoryInterface } from './interfaces/activity-repository.interface';
@@ -24,11 +25,11 @@ export class ActivityRepository implements ActivityRepositoryInterface {
     });
   }
 
-  async findByDate(userId: number, date: Date): Promise<Activity> {
-    return await this.prisma.activity.findFirst({
+  async findByDate(userId: number, date: Date): Promise<Activity[]> {
+    return await this.prisma.activity.findMany({
       where: {
         user_id: userId,
-        date,
+        date: { gte: date, lt: dayjs(date).add(1, 'day').toDate() },
         is_delete: false,
       },
     });
@@ -52,8 +53,8 @@ export class ActivityRepository implements ActivityRepositoryInterface {
       where: {
         user_id: userId,
         date: {
-          lte: startDate,
-          gte: endDate,
+          gte: startDate,
+          lte: endDate,
         },
         is_delete: false,
       },

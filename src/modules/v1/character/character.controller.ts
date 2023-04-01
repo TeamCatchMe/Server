@@ -3,8 +3,10 @@ import { ResponseEntity } from '@common/constants/responseEntity';
 import { CharacterBlockSuccess } from '@common/constants/swagger/domain/character/CharacterBlockSuccess';
 import { CharacterCreateSuccess } from '@common/constants/swagger/domain/character/CharacterCreateSuccess';
 import { CharacterEditSuccess } from '@common/constants/swagger/domain/character/CharacterEditSuccess';
+import { CharacterGetCalenderSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromCalenderSuccess';
 import { CharacterGetLookingListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromLookingSuccess';
 import { CharacterGetListSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromMainSuccess';
+import { CharacterGetSpecificDateSuccess } from '@common/constants/swagger/domain/character/CharacterGetFromSpecificDateSuccess';
 import { CharacterGetFromMainSuccess } from '@common/constants/swagger/domain/character/CharactersListSuccess';
 import { ConflictError } from '@common/constants/swagger/error/ConflictError';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
@@ -36,13 +38,17 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { ActivityDateParamsDTO } from '../activity/dto/activity-date.params.dto';
+import { ActivityQueryDTO } from '../activity/dto/activity.query.dto';
 import { UserDTO } from '../user/dto/user.dto';
 import { CharacterService } from './character.service';
 import { CharacterBlockRequestDTO } from './dto/character-block.req.dto';
 import { CharacterCreateRequestDTO } from './dto/character-create.req.dto';
 import { CharacterIdParamsDTO } from './dto/character-detail.params.dto';
 import { CharacterEditRequestDTO } from './dto/character-edit.req.dto';
+import { CharacterGetCalenderResponseDTO } from './dto/character-get-calender.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
+import { CharacterGetSpecificDateResponseDTO } from './dto/character-get-specificDate.res.dto';
 import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { SortType } from './interfaces/sort-type';
@@ -299,5 +305,74 @@ export class CharacterController {
   ): Promise<ResponseEntity<string>> {
     await this.characterService.deleteCharacter(user.id, params.character_id);
     return ResponseEntity.OK_WITH(rm.DELETE_CHARACTER_SUCCESS);
+  }
+
+  @ApiOperation({
+    summary: '날짜 범위 내의 캘린더 데이터를 조회합니다.',
+    description: `
+    YYYYMMDD의 형식으로, 날짜 범위를 입력받습니다.\n
+    해당 날짜의 범위에 활동이 있는 캐츄들의 정보를 전달받습니다.\n
+    `,
+  })
+  @ApiOkResponse({
+    description: '캘린더 조회에 성공했습니다.',
+    type: CharacterGetCalenderSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.character.calender)
+  async getCalendar(
+    @Token() user: UserDTO,
+    @Query() query: ActivityQueryDTO,
+  ): Promise<ResponseEntity<CharacterGetCalenderResponseDTO>> {
+    const data = await this.characterService.getCalender(
+      user.id,
+      query.startDate,
+      query.endDate,
+    );
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_CALENDER_CHARACTER_SUCCESS,
+      data,
+    );
+  }
+
+  @ApiOperation({
+    summary: '특정 일자의 캐츄를 조회합니다.',
+    description: `
+    YYYYMMDD의 형식으로, 특정날짜를 입력받습니다.\n
+    해당 날짜에 활동이 있는 모든 캐츄의 목록을 조회합니다\n
+    `,
+  })
+  @ApiOkResponse({
+    description: '특정 일자의 캐츄를 조회에 성공했습니다.',
+    type: CharacterGetSpecificDateSuccess,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 되지 않은 요청입니다.',
+    type: UnauthorizedError,
+  })
+  @ApiInternalServerErrorResponse({
+    description: '서버 내부 오류',
+    type: InternalServerError,
+  })
+  @Get(routesV1.character.specificDate)
+  async getSpecificDate(
+    @Token() user: UserDTO,
+    @Param() params: ActivityDateParamsDTO,
+  ): Promise<ResponseEntity<CharacterGetSpecificDateResponseDTO[]>> {
+    const data = await this.characterService.getSpecificDate(
+      user.id,
+      params.date,
+    );
+    return ResponseEntity.OK_WITH_DATA(
+      rm.READ_SPECIFIC_DATE_CHARACTER_SUCCESS,
+      data,
+    );
   }
 }

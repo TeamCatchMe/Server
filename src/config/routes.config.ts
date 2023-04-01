@@ -23,8 +23,6 @@ export const routesV1 = {
 
   activity: {
     root: ACTIVITY_ROOT,
-    calender: `/${ACTIVITY_ROOT}/`,
-    specificDate: `/${ACTIVITY_ROOT}/:date`,
     character: `/${ACTIVITY_ROOT}/character/:character_id`,
     create: `/${ACTIVITY_ROOT}/`,
     update: `/${ACTIVITY_ROOT}/:activity_id`,
@@ -40,6 +38,8 @@ export const routesV1 = {
     looking: `/${CHARACTER_ROOT}/looking`,
     list: `/${CHARACTER_ROOT}/list`,
     detail: `/${CHARACTER_ROOT}/detail/:character_id`,
+    calender: `/${CHARACTER_ROOT}/calender`,
+    specificDate: `/${CHARACTER_ROOT}/:date`,
     delete: `/${CHARACTER_ROOT}/:character_id`,
   },
 } as const;
