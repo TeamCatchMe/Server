@@ -109,15 +109,6 @@ export default class CharacterRepository
       },
     });
 
-    const userActivityCount = await this.prisma.activity.count({
-      where: {
-        is_delete: false,
-        Character: {
-          user_id,
-        },
-      },
-    });
-
     const result = characters.reduce(
       (acc, character) => {
         const characterInfo = {
