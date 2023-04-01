@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Character } from '@prisma/client';
+import dayjs from 'dayjs';
+import { add } from 'lodash';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CharacterGetDetailResponseDTO } from './dto/character-get-detail.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
@@ -300,7 +302,21 @@ export default class CharacterRepository
       },
     });
 
-    return characters;
+    const result = characters
+      .filter((character) => character.Activity.length > 0)
+      .map((character) => {
+        const formattedActivity = {
+          ...character.Activity[0],
+          date: dayjs(character.Activity[0].date).format('YYYYMMDDHHmmss'),
+        };
+
+        return {
+          ...character,
+          Activity: formattedActivity,
+        };
+      });
+
+    return result;
   }
 
   async delete(characterId: number): Promise<void> {

@@ -12,8 +12,12 @@ class ActivityDataForLookingResponseDTO extends PickType(ActivityDto, [
   'id',
   'content',
   'image',
-  'date',
-]) {}
+]) {
+  @ApiProperty({
+    description: '활동의 날짜(YYYYMMDDHHmmss',
+  })
+  date: string;
+}
 
 export class CharactersGetLookingResponseDTO extends PickType(CharacterDTO, [
   'id',
@@ -31,5 +35,5 @@ export class CharactersGetLookingResponseDTO extends PickType(CharacterDTO, [
     description: '캐츄의 가장 최근 활동 정보',
     type: [ActivityDataForLookingResponseDTO],
   })
-  Activity: ActivityDataForLookingResponseDTO[];
+  Activity: ActivityDataForLookingResponseDTO;
 }
