@@ -101,7 +101,20 @@ export default class CharacterRepository
         user_id,
       },
       include: {
-        Activity: true,
+        Activity: {
+          where: {
+            is_delete: false,
+          },
+        },
+      },
+    });
+
+    const userActivityCount = await this.prisma.activity.count({
+      where: {
+        is_delete: false,
+        Character: {
+          user_id,
+        },
       },
     });
 
@@ -219,8 +232,9 @@ export default class CharacterRepository
     return characters;
   }
 
-  async findCharacterDetailWithId(characterId: number): Promise<any> {
-    // CharacterGetDetailResponseDTO
+  async findCharacterDetailWithId(
+    characterId: number,
+  ): Promise<CharacterGetDetailResponseDTO> {
     const character = await this.prisma.character.findFirst({
       select: {
         id: true,
