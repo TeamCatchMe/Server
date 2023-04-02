@@ -1,10 +1,8 @@
 import { rm } from '@common/constants';
 import { ResponseEntity } from '@common/constants/responseEntity';
 import { ActivityCreateSuccess } from '@common/constants/swagger/domain/activity/ActivityCreateSuccess';
-import { ActivityDateGetSuccess } from '@common/constants/swagger/domain/activity/ActivityDateGetSuccess';
 import { ActivityDeleteSuccess } from '@common/constants/swagger/domain/activity/ActivityDeleteSuccess';
 import { ActivityUpdateSuccess } from '@common/constants/swagger/domain/activity/ActivityUpdateSuccess';
-import { UserPatchNicknameSuccess } from '@common/constants/swagger/domain/user/UserPatchNicknameSuccess';
 import { InternalServerError } from '@common/constants/swagger/error/InternalServerError';
 import { UnauthorizedError } from '@common/constants/swagger/error/UnauthorizedError';
 import { ApiImageFile } from '@common/decorators/api-file.decorator';
@@ -17,9 +15,8 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
-  Query,
+  Put,
   UploadedFile,
   UseGuards,
 } from '@nestjs/common';
@@ -40,10 +37,8 @@ import { UserDTO } from '../user/dto/user.dto';
 import { ActivityService } from './activity.service';
 import { ActivityCharacterParamsDTO } from './dto/activity-character.params.dto';
 import { ActivityCreateRequestDto } from './dto/activity-create.req.dto';
-import { ActivityDateParamsDTO } from './dto/activity-date.params.dto';
 import { ActivityUpdateRequestDto } from './dto/activity-update.req.dto';
 import { ActivityParamsDto } from './dto/activity.params.dto';
-import { ActivityQueryDTO } from './dto/activity.query.dto';
 import { ActivityResponseDTO } from './dto/activity.res.dto';
 dayjs.extend(CustomParseFormat);
 
@@ -63,7 +58,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: '캐츄 활동 조회에 성공했습니다.',
-    type: UserPatchNicknameSuccess,
+    type: ActivityDateAllGetSuccess,
   })
   @ApiUnauthorizedResponse({
     description: '인증 되지 않은 요청입니다.',
@@ -142,7 +137,7 @@ export class ActivityController {
   @ApiOperation({
     summary: '특정 활동을 수정합니다.',
     description: `
-    이미지 파일을 필수로 받고, 이미지 파일이 아닌 경우엔 400 에러를 출력합니다. \n
+    이미지 파일이 아닌 경우엔 400 에러를 출력합니다. \n
     헤더에 토큰 값을 제대로 설정하지 않으면 401 에러를 출력합니다. \n
     `,
   })
@@ -158,7 +153,6 @@ export class ActivityController {
           description: '활동에 들어가는 이미지 파일입니다.',
         },
       },
-      required: ['file'],
     },
   })
   @ApiOkResponse({
@@ -173,14 +167,14 @@ export class ActivityController {
     description: '서버 내부 오류',
     type: InternalServerError,
   })
-  @Patch(routesV1.activity.update)
+  @Put(routesV1.activity.update)
   async updateActivity(
     @Token() user: UserDTO,
     @Param() params: ActivityParamsDto,
     @UploadedFile() file: any,
     @Body() body: ActivityUpdateRequestDto,
   ): Promise<ResponseEntity<ActivityResponseDTO>> {
-    const url = file.transforms[0].location;
+    const url = file?.transforms[0]?.location;
     const data = await this.activityService.updateActivity(
       user.id,
       params.activity_id,
