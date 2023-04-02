@@ -23,8 +23,8 @@ export class CharacterDTO {
   })
   @IsNotEmpty()
   @IsString({ message: '캐츄의 이름은 문자열이여야 합니다.' })
-  @MinLength(1, { message: '캐츄의 이름은 1자 이상 20자 이하이여야 합니다' })
-  @MaxLength(20, { message: '캐츄의 이름은 1자 이상 20자 이하이여야 합니다' })
+  @MinLength(1, { message: '캐츄의 이름은 1자 이상 20자 이하이여야 합니다.' })
+  @MaxLength(20, { message: '캐츄의 이름은 1자 이상 20자 이하이여야 합니다.' })
   name: string;
 
   @ApiProperty({

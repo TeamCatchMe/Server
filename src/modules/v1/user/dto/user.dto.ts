@@ -42,8 +42,8 @@ export class UserDTO {
     required: true,
   })
   @IsString({ message: '유저의 닉네임은 문자열이여야 합니다.' })
-  @MinLength(1, { message: '닉네임은 1자 이상 10자 이하이여야 합니다' })
-  @MaxLength(10, { message: '닉네임은 1자 이상 10자 이하이여야 합니다' })
+  @MinLength(1, { message: '닉네임은 1자 이상 10자 이하이여야 합니다.' })
+  @MaxLength(10, { message: '닉네임은 1자 이상 10자 이하이여야 합니다.' })
   nickname: string;
 
   @ApiProperty({
