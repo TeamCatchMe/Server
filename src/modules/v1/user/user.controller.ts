@@ -34,12 +34,11 @@ import { UserService } from './user.service';
 
 @Controller(routesV1.version)
 @ApiTags('User API')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth('Authorization')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  //todo 닉네임 변경
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('Authorization')
   @ApiOperation({
     summary: '닉네임을 변경합니다.',
     description: ``,
