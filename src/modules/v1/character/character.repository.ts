@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Character } from '@prisma/client';
+import dayjs from 'dayjs';
+import { add } from 'lodash';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CharacterGetDetailResponseDTO } from './dto/character-get-detail.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
@@ -99,7 +101,11 @@ export default class CharacterRepository
         user_id,
       },
       include: {
-        Activity: true,
+        Activity: {
+          where: {
+            is_delete: false,
+          },
+        },
       },
     });
 
@@ -229,33 +235,30 @@ export default class CharacterRepository
         is_public: true,
         user_id: true,
         created_at: true,
-
-        _count: {
-          select: { Activity: true },
-        },
       },
       where: {
         id: characterId,
       },
     });
 
-    const characters = await this.prisma.character.findMany({
-      select: {
-        _count: {
-          select: { Activity: true },
-        },
-      },
+    const characterActicitycount = await this.prisma.activity.count({
       where: {
-        user_id: character.user_id,
+        character_id: character.id,
+        is_delete: false,
       },
     });
-    const totalActivityCount = characters.reduce((acc, cur) => {
-      acc += cur._count.Activity;
-      return acc;
-    }, 0);
+
+    const userActivityCount = await this.prisma.activity.count({
+      where: {
+        is_delete: false,
+        Character: {
+          user_id: character.user_id,
+        },
+      },
+    });
 
     const catchu_rate = Math.round(
-      (character._count.Activity / totalActivityCount) * 100,
+      (characterActicitycount / userActivityCount) * 100,
     );
 
     const characterDetail = {
@@ -265,7 +268,7 @@ export default class CharacterRepository
       level: character.level,
       is_public: character.is_public,
       created_at: character.created_at,
-      activity_count: character._count.Activity,
+      activity_count: characterActicitycount,
       cachu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
     };
 
@@ -300,7 +303,21 @@ export default class CharacterRepository
       },
     });
 
-    return characters;
+    const result = characters
+      .filter((character) => character.Activity.length > 0)
+      .map((character) => {
+        const formattedActivity = {
+          ...character.Activity[0],
+          date: dayjs(character.Activity[0].date).format('YYYYMMDDHHmmss'),
+        };
+
+        return {
+          ...character,
+          Activity: formattedActivity,
+        };
+      });
+
+    return result;
   }
 
   async delete(characterId: number): Promise<void> {

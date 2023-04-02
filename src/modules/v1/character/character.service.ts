@@ -165,7 +165,7 @@ export class CharacterService {
     const start = dayjs(startDate, 'YYYYMMDD').add(9, 'h').toDate();
     const end = dayjs(endDate, 'YYYYMMDD').add(9, 'h').toDate();
 
-    const activity = await this.activityRepository.findBetweenDateAndDate(
+    const activity = await this.activityRepository.findAllBetweenDateAndDate(
       userId,
       start,
       end,
