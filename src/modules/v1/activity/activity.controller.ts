@@ -134,6 +134,7 @@ export class ActivityController {
     return ResponseEntity.CREATED_WITH_DATA(rm.CREATE_ACTIVITY_SUCCESS, data);
   }
 
+  @ApiImageFile('image')
   @ApiOperation({
     summary: '특정 활동을 수정합니다.',
     description: `
