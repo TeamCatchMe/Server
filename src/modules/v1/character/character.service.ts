@@ -1,23 +1,24 @@
 import { rm } from '@common/constants';
+import { DateUtil } from '@common/libraries/date.util';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { Character } from '@prisma/client';
+import dayjs from 'dayjs';
+import _ from 'lodash';
+import {
+  ActivityRepositoryInterface,
+  ACTIVITY_REPOSITORY,
+} from '../activity/interfaces/activity-repository.interface';
 import {
   BlockRepositoryInterface,
   BLOCK_REPOSITORY,
 } from '../block/interface/block-repository.interface';
+import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
-import dayjs from 'dayjs';
 import {
   CharacterRepositoryInterface,
   CHARACTER_REPOSITORY,
 } from './interfaces/character-repository.interface';
 import { SortType } from './interfaces/sort-type';
-import {
-  ActivityRepositoryInterface,
-  ACTIVITY_REPOSITORY,
-} from '../activity/interfaces/activity-repository.interface';
-import _, { curry } from 'lodash';
-import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
-import { Character } from '@prisma/client';
 
 @Injectable()
 export class CharacterService {
@@ -162,8 +163,8 @@ export class CharacterService {
   }
 
   async getCalender(userId: number, startDate: string, endDate: string) {
-    const start = dayjs(startDate, 'YYYYMMDD').add(9, 'h').toDate();
-    const end = dayjs(endDate, 'YYYYMMDD').add(9, 'h').toDate();
+    const start = DateUtil.toDate(startDate);
+    const end = DateUtil.toDate(endDate);
 
     const activity = await this.activityRepository.findAllBetweenDateAndDate(
       userId,

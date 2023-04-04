@@ -1,11 +1,12 @@
 import { rm } from '@common/constants';
+import { DateUtil } from '@common/libraries/date.util';
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import dayjs from 'dayjs';
 import { ActivityResponseDTO } from './dto/activity.res.dto';
 import {
   ActivityRepositoryInterface,
@@ -33,7 +34,9 @@ export class ActivityService {
     date: string,
     image?: string,
   ) {
-    const activityDate = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
+    const activityDate = DateUtil.toDate(date);
+    if (!activityDate) throw new BadRequestException('잘못된 date값 입니다.');
+
     const activity = await this.activityRepository.create(
       userId,
       characterId,
@@ -58,7 +61,8 @@ export class ActivityService {
     if (activity.user_id !== userId)
       throw new ConflictException(rm.UNAUTHORIZED);
 
-    const activityDate = dayjs(date, 'YYYYMMDD').add(9, 'h').toDate();
+    const activityDate = DateUtil.toDate(date);
+    if (!activityDate) throw new BadRequestException('잘못된 date값 입니다.');
     const updatedActivity = await this.activityRepository.update(
       activityId,
       content,

@@ -12,6 +12,6 @@ export class ActivityResponseDTO {
     this.id = activity.id;
     this.content = activity.content;
     this.image = activity.image;
-    this.date = DateUtil.toFullString(activity.date);
+    this.date = DateUtil.toString(activity.date);
   }
 }
