@@ -171,6 +171,11 @@ export class CharacterService {
       start,
       end,
     );
+    const characters = await this.characterRepository.findAllCharacterByUserId(
+      userId,
+    );
+
+    if (!activity.length || !characters.length) return null;
 
     const character = _.groupBy(
       await this.characterRepository.findAllCharacterByUserId(userId),

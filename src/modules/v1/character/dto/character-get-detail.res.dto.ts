@@ -1,4 +1,4 @@
-import { PickType, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CharacterDTO } from './character.dto';
 
 export class CharacterGetDetailResponseDTO extends PickType(CharacterDTO, [
@@ -16,5 +16,5 @@ export class CharacterGetDetailResponseDTO extends PickType(CharacterDTO, [
   @ApiProperty({
     description: '캐치 지수<br>(해당 캐츄 캐칭 수 / 총 캐칭 수)',
   })
-  cachu_rate: number;
+  catchu_rate: number;
 }
