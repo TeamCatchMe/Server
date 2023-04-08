@@ -49,6 +49,7 @@ export default class AuthRepository implements AuthRepositoryInterface {
   }
 
   async delete(userId: number): Promise<void> {
+    console.log(userId);
     await this.prisma.user.delete({
       where: { id: userId },
     });
