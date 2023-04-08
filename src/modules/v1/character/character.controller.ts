@@ -330,12 +330,14 @@ export class CharacterController {
   async getCalendar(
     @Token() user: UserDTO,
     @Query() query: ActivityQueryDTO,
-  ): Promise<ResponseEntity<CharacterGetCalenderResponseDTO>> {
+  ): Promise<ResponseEntity<CharacterGetCalenderResponseDTO | string>> {
     const data = await this.characterService.getCalender(
       user.id,
       query.startDate,
       query.endDate,
     );
+
+    if (!data) return ResponseEntity.NO_CONTENT_WITH(rm.NO_CALENDER_DATA);
     return ResponseEntity.OK_WITH_DATA(
       rm.READ_CALENDER_CHARACTER_SUCCESS,
       data,

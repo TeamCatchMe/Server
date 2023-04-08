@@ -21,6 +21,7 @@ export default class CharacterRepository
       },
     });
   }
+
   async findManyForDailyCharacter(ids: number[]): Promise<Character[]> {
     return await this.prisma.character.findMany({
       where: {
@@ -135,7 +136,7 @@ export default class CharacterRepository
 
         const characterInfo = {
           ...character,
-          cachu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
+          catchu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
         };
         acc.push(characterInfo);
         return acc;
@@ -240,7 +241,7 @@ export default class CharacterRepository
       },
     });
 
-    const characterActicitycount = await this.prisma.activity.count({
+    const characterActivityCount = await this.prisma.activity.count({
       where: {
         character_id: character.id,
         is_delete: false,
@@ -257,7 +258,7 @@ export default class CharacterRepository
     });
 
     const catchu_rate = Math.round(
-      (characterActicitycount / userActivityCount) * 100,
+      (characterActivityCount / userActivityCount) * 100,
     );
 
     const characterDetail = {
@@ -267,8 +268,8 @@ export default class CharacterRepository
       level: character.level,
       is_public: character.is_public,
       created_at: character.created_at,
-      activity_count: characterActicitycount,
-      cachu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
+      activity_count: characterActivityCount,
+      catchu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
     };
 
     return characterDetail;
