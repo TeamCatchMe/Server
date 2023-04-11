@@ -303,7 +303,21 @@ export default class CharacterRepository
       },
     });
 
-    const result = characters
+    const sortedCharacters = characters.sort((a, b) => {
+      const aRecentActivity = a.Activity[0];
+      const bRecentActivity = b.Activity[0];
+
+      if (!aRecentActivity || !bRecentActivity) {
+        return 0;
+      }
+
+      const aDate = new Date(aRecentActivity.date);
+      const bDate = new Date(bRecentActivity.date);
+
+      return bDate.getTime() - aDate.getTime();
+    });
+
+    const result = sortedCharacters
       .filter((character) => character.Activity.length > 0)
       .map((character) => {
         const formattedActivity = {

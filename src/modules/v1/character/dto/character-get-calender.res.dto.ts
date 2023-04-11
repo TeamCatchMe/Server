@@ -17,6 +17,9 @@ export class DailyCharacterDataForCalenderResponseDTO extends PickType(
 ) {
   @ApiProperty({ description: '일자 정보', example: 1 })
   day: number;
+
+  @ApiProperty({ description: '월 정보', example: 1 })
+  month: number;
 }
 
 export class CharacterGetCalenderResponseDTO {
