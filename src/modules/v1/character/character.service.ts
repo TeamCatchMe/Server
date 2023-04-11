@@ -165,6 +165,22 @@ export class CharacterService {
     const start = dayjs(startDate, 'YYYYMMDD').add(9, 'h').toDate();
     const end = dayjs(endDate, 'YYYYMMDD').add(9, 'h').toDate();
 
+    const daysByMonth = {};
+    let currMonth = dayjs(start).clone().startOf('month');
+    while (currMonth.isBefore(end)) {
+      const monthDays = currMonth.daysInMonth();
+      const daysInRange = Math.min(
+        monthDays,
+        dayjs(end).diff(currMonth, 'day') + 1,
+      );
+      daysByMonth[currMonth.format('M')] = daysInRange;
+      currMonth = currMonth.add(1, 'month').startOf('month');
+    }
+
+    const mainMonth = +Object.keys(daysByMonth).reduce((a, b) =>
+      daysByMonth[a] > daysByMonth[b] ? a : b,
+    );
+
     const activity = await this.activityRepository.findAllBetweenDateAndDate(
       userId,
       start,
@@ -178,15 +194,23 @@ export class CharacterService {
 
     const monthlyCharacterCount = {};
     const dailyActivities = {};
-
     // 조회한 activity 값들을 바탕으로, 그 달의 캐츄와 일자 별 캐츄를 찾기 위해 정보 가공
     activity.map((o) => {
-      monthlyCharacterCount[o.character_id] =
-        (monthlyCharacterCount[o.character_id] || 0) + 1;
-      if (dailyActivities[dayjs(o.date).date()]) {
-        dailyActivities[dayjs(o.date).date()].push(o);
+      if (dayjs(o.date).month() + 1 === mainMonth) {
+        monthlyCharacterCount[o.character_id] =
+          (monthlyCharacterCount[o.character_id] || 0) + 1;
+      }
+
+      if (
+        dailyActivities[`${dayjs(o.date).month() + 1}-${dayjs(o.date).date()}`]
+      ) {
+        dailyActivities[
+          `${dayjs(o.date).month() + 1}-${dayjs(o.date).date()}`
+        ].push(o);
       } else {
-        dailyActivities[dayjs(o.date).date()] = [o];
+        dailyActivities[
+          `${dayjs(o.date).month() + 1}-${dayjs(o.date).date()}`
+        ] = [o];
       }
     });
 
@@ -198,7 +222,6 @@ export class CharacterService {
     );
 
     const monthlyCharacterData = character[monthlyCharacterId][0];
-
     const monthly = {
       id: monthlyCharacterData.id,
       name: monthlyCharacterData.name,
@@ -211,8 +234,9 @@ export class CharacterService {
      * 일자별 캐츄를 찾는 작업
      */
     const daily: DailyCharacterDataForCalenderResponseDTO[] = [];
-    for (const day in dailyActivities) {
-      const dailyCount = _.countBy(dailyActivities[day], 'character_id');
+    for (const date in dailyActivities) {
+      const [month, day] = date.split('-');
+      const dailyCount = _.countBy(dailyActivities[date], 'character_id');
 
       const dailyCharacterId = Object.keys(dailyCount).reduce((a, b) =>
         dailyCount[a] > dailyCount[b] ? a : b,
@@ -220,6 +244,7 @@ export class CharacterService {
 
       const characterData = character[dailyCharacterId][0];
       daily.push({
+        month: parseInt(month),
         day: parseInt(day),
         id: characterData.id,
         type: characterData.type,
