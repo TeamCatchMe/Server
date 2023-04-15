@@ -264,13 +264,16 @@ export class CharacterController {
     type: InternalServerError,
   })
   @Get(routesV1.character.looking)
-  @ApiQuery({ name: 'offset', required: false })
+  @ApiQuery({ name: 'activityId', required: false })
+  @ApiQuery({ name: 'date', required: false })
   async getCharacterLookingList(
     @Token() user: UserDTO,
-    @Query('offset') offset: number,
+    @Query('activityId') activityId: number,
+    @Query('date') date: string,
   ): Promise<ResponseEntity<CharactersGetLookingResponseDTO[]>> {
     const character = await this.characterService.getCharactersForLookingList(
-      offset,
+      date,
+      activityId,
     );
     return ResponseEntity.OK_WITH_DATA(
       rm.READ_CHARACTERS_FROM_LOOKING_SUCCESS,
