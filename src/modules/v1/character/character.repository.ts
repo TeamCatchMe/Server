@@ -29,6 +29,7 @@ export default class CharacterRepository
     return await this.prisma.character.findMany({
       where: {
         id: { in: ids },
+        is_delete: false,
       },
     });
   }
@@ -37,6 +38,7 @@ export default class CharacterRepository
     return await this.prisma.character.findMany({
       where: {
         user_id: userId,
+        is_delete: false,
       },
     });
   }
@@ -50,7 +52,7 @@ export default class CharacterRepository
     name: string,
   ): Promise<Character> {
     return await this.prisma.character.findFirst({
-      where: { user_id: userId, name },
+      where: { user_id: userId, name, is_delete: false },
     });
   }
 
@@ -60,7 +62,7 @@ export default class CharacterRepository
     name: string,
   ): Promise<Character> {
     return await this.prisma.character.findFirst({
-      where: { user_id: userId, name, id: { not: id } },
+      where: { user_id: userId, name, id: { not: id }, is_delete: false },
     });
   }
 
@@ -102,6 +104,7 @@ export default class CharacterRepository
     const characters = await this.prisma.character.findMany({
       where: {
         user_id,
+        is_delete: false,
       },
       include: {
         Activity: {
@@ -161,7 +164,7 @@ export default class CharacterRepository
             _count: 'desc',
           },
         },
-        where: { user_id: userId },
+        where: { user_id: userId, is_delete: false },
       });
 
     const characters: CharactersResponseDTO[] = [];
@@ -191,7 +194,7 @@ export default class CharacterRepository
           take: 1,
         },
       },
-      where: { user_id: userId },
+      where: { user_id: userId, is_delete: false },
     });
 
     const charactersOrderedByRecent = charactersWithActivities.sort(
@@ -221,7 +224,7 @@ export default class CharacterRepository
       orderBy: {
         created_at: 'asc',
       },
-      where: { user_id: userId },
+      where: { user_id: userId, is_delete: false },
     });
     return characters;
   }
@@ -241,6 +244,7 @@ export default class CharacterRepository
       },
       where: {
         id: characterId,
+        is_delete: false,
       },
     });
 
@@ -293,6 +297,7 @@ export default class CharacterRepository
         id: {
           in: characterIds,
         },
+        is_delete: false,
       },
     });
 
