@@ -4,7 +4,10 @@ import dayjs from 'dayjs';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CharacterGetDetailResponseDTO } from './dto/character-get-detail.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
-import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
+import {
+  CharactersGetLookingResponseDTO,
+  FindAllCharactersForLookingDTO,
+} from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { CharacterRepositoryInterface } from './interfaces/character-repository.interface';
 
@@ -26,6 +29,7 @@ export default class CharacterRepository
     return await this.prisma.character.findMany({
       where: {
         id: { in: ids },
+        is_delete: false,
       },
     });
   }
@@ -34,6 +38,7 @@ export default class CharacterRepository
     return await this.prisma.character.findMany({
       where: {
         user_id: userId,
+        is_delete: false,
       },
     });
   }
@@ -47,7 +52,7 @@ export default class CharacterRepository
     name: string,
   ): Promise<Character> {
     return await this.prisma.character.findFirst({
-      where: { user_id: userId, name },
+      where: { user_id: userId, name, is_delete: false },
     });
   }
 
@@ -57,7 +62,7 @@ export default class CharacterRepository
     name: string,
   ): Promise<Character> {
     return await this.prisma.character.findFirst({
-      where: { user_id: userId, name, id: { not: id } },
+      where: { user_id: userId, name, id: { not: id }, is_delete: false },
     });
   }
 
@@ -99,6 +104,7 @@ export default class CharacterRepository
     const characters = await this.prisma.character.findMany({
       where: {
         user_id,
+        is_delete: false,
       },
       include: {
         Activity: {
@@ -158,7 +164,7 @@ export default class CharacterRepository
             _count: 'desc',
           },
         },
-        where: { user_id: userId },
+        where: { user_id: userId, is_delete: false },
       });
 
     const characters: CharactersResponseDTO[] = [];
@@ -188,7 +194,7 @@ export default class CharacterRepository
           take: 1,
         },
       },
-      where: { user_id: userId },
+      where: { user_id: userId, is_delete: false },
     });
 
     const charactersOrderedByRecent = charactersWithActivities.sort(
@@ -218,7 +224,7 @@ export default class CharacterRepository
       orderBy: {
         created_at: 'asc',
       },
-      where: { user_id: userId },
+      where: { user_id: userId, is_delete: false },
     });
     return characters;
   }
@@ -238,6 +244,7 @@ export default class CharacterRepository
       },
       where: {
         id: characterId,
+        is_delete: false,
       },
     });
 
@@ -276,62 +283,25 @@ export default class CharacterRepository
   }
 
   async getCharactersForLookingList(
-    offset: number,
-    limit: number,
-  ): Promise<CharactersGetLookingResponseDTO[]> {
+    characterIds: number[],
+  ): Promise<FindAllCharactersForLookingDTO[]> {
     const characters = await this.prisma.character.findMany({
-      skip: offset,
-      take: limit,
       select: {
         id: true,
         name: true,
         type: true,
         level: true,
         User: { select: { id: true, nickname: true } },
-        Activity: {
-          select: {
-            id: true,
-            content: true,
-            image: true,
-            date: true,
-          },
-          orderBy: {
-            date: 'desc',
-          },
-          take: 1,
+      },
+      where: {
+        id: {
+          in: characterIds,
         },
+        is_delete: false,
       },
     });
 
-    const sortedCharacters = characters.sort((a, b) => {
-      const aRecentActivity = a.Activity[0];
-      const bRecentActivity = b.Activity[0];
-
-      if (!aRecentActivity || !bRecentActivity) {
-        return 0;
-      }
-
-      const aDate = new Date(aRecentActivity.date);
-      const bDate = new Date(bRecentActivity.date);
-
-      return bDate.getTime() - aDate.getTime();
-    });
-
-    const result = sortedCharacters
-      .filter((character) => character.Activity.length > 0)
-      .map((character) => {
-        const formattedActivity = {
-          ...character.Activity[0],
-          date: dayjs(character.Activity[0].date).format('YYYYMMDDHHmmss'),
-        };
-
-        return {
-          ...character,
-          Activity: formattedActivity,
-        };
-      });
-
-    return result;
+    return characters;
   }
 
   async delete(characterId: number): Promise<void> {

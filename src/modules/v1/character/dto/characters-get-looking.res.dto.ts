@@ -8,15 +8,49 @@ class UserDataForLookingResponseDTO extends PickType(UserDTO, [
   'nickname',
 ]) {}
 
+export class ActivityDataForLookingDTO extends PickType(ActivityDto, [
+  'id',
+  'content',
+  'image',
+  'character_id',
+]) {
+  @ApiProperty({
+    description: '활동의 날짜(YYYYMMDDHHmmss)',
+  })
+  date: string;
+
+  @ApiProperty({
+    description: '활동의 생성 날짜(YYYYMMDDHHmmss)',
+  })
+  createdAt: string;
+}
 class ActivityDataForLookingResponseDTO extends PickType(ActivityDto, [
   'id',
   'content',
   'image',
 ]) {
   @ApiProperty({
-    description: '활동의 날짜(YYYYMMDDHHmmss',
+    description: '활동의 날짜(YYYYMMDDHHmmss)',
   })
   date: string;
+
+  @ApiProperty({
+    description: '활동의 생성 날짜(YYYYMMDDHHmmss)',
+  })
+  createdAt: string;
+}
+
+export class FindAllCharactersForLookingDTO extends PickType(CharacterDTO, [
+  'id',
+  'name',
+  'type',
+  'level',
+]) {
+  @ApiProperty({
+    description: '캐츄의 유져 정보',
+    type: UserDataForLookingResponseDTO,
+  })
+  User: UserDataForLookingResponseDTO;
 }
 
 export class CharactersGetLookingResponseDTO extends PickType(CharacterDTO, [
@@ -33,7 +67,7 @@ export class CharactersGetLookingResponseDTO extends PickType(CharacterDTO, [
 
   @ApiProperty({
     description: '캐츄의 가장 최근 활동 정보',
-    type: [ActivityDataForLookingResponseDTO],
+    type: ActivityDataForLookingResponseDTO,
   })
   Activity: ActivityDataForLookingResponseDTO;
 }

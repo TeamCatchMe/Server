@@ -1,7 +1,9 @@
+import { DateUtil } from '@common/libraries/date.util';
 import { Injectable } from '@nestjs/common';
 import { Activity } from '@prisma/client';
 import dayjs from 'dayjs';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { ActivityDataForLookingDTO } from '../character/dto/characters-get-looking.res.dto';
 import { ActivityDto } from './dto/activity.dto';
 import { ActivityRepositoryInterface } from './interfaces/activity-repository.interface';
 
@@ -59,6 +61,48 @@ export class ActivityRepository implements ActivityRepositoryInterface {
         is_delete: false,
       },
     });
+  }
+
+  async findAllForLookingList(
+    date: Date,
+    id: number,
+    limit: number,
+  ): Promise<ActivityDataForLookingDTO[]> {
+    const activities = await this.prisma.activity.findMany({
+      select: {
+        id: true,
+        content: true,
+        image: true,
+        character_id: true,
+        date: true,
+        created_at: true,
+      },
+      where: {
+        created_at: {
+          lte: date,
+        },
+        id: { lte: id },
+        is_delete: false,
+        Character: { is_public: true },
+      },
+      orderBy: { created_at: 'desc' },
+      take: limit,
+    });
+
+    const result = activities.map((activity) => {
+      const date = DateUtil.toString(activity.date);
+      const createdAt = DateUtil.toString(activity.created_at);
+      const formattedActivity: ActivityDataForLookingDTO = {
+        id: activity.id,
+        content: activity.content,
+        image: activity.image,
+        character_id: activity.character_id,
+        date,
+        createdAt,
+      };
+      return formattedActivity;
+    });
+    return result;
   }
 
   async create(

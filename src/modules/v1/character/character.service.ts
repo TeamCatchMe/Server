@@ -13,6 +13,7 @@ import {
   BLOCK_REPOSITORY,
 } from '../block/interface/block-repository.interface';
 import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
+import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import {
   CharacterRepositoryInterface,
@@ -140,16 +141,56 @@ export class CharacterService {
     return character;
   }
 
-  async getCharactersForLookingList(offset: number) {
-    let limit = 10;
-    if (!offset) {
-      offset = 0;
-      limit = 100;
-    }
-    const character =
-      await this.characterRepository.getCharactersForLookingList(offset, limit);
+  async getCharactersForLookingList(date: string, activityId: number) {
+    const limit = 10;
+    let offsetDate = new Date();
+    let offsetId = 99999999;
 
-    return character;
+    if (date) {
+      offsetDate = dayjs(date).toDate();
+      console.info(offsetDate);
+    }
+    if (activityId) {
+      offsetId = activityId;
+    }
+
+    const activities = await this.activityRepository.findAllForLookingList(
+      offsetDate,
+      offsetId,
+      limit,
+    );
+    const characterIds = activities.map((activity) => activity.character_id);
+
+    const characters =
+      await this.characterRepository.getCharactersForLookingList(characterIds);
+
+    const result: CharactersGetLookingResponseDTO[] = activities
+      .map(({ character_id, ...activity }) => {
+        const character = characters.find((c) => c.id === character_id);
+        if (character) {
+          return {
+            id: character.id,
+            name: character.name,
+            type: character.type,
+            level: character.level,
+            User: {
+              id: character.User.id,
+              nickname: character.User.nickname,
+            },
+            Activity: {
+              id: activity.id,
+              content: activity.content,
+              image: activity.image,
+              date: activity.date,
+              createdAt: activity.createdAt,
+            },
+          };
+        }
+        return null;
+      })
+      .filter((item) => item !== null);
+
+    return result;
   }
 
   async deleteCharacter(userId: number, characterId: number): Promise<void> {
