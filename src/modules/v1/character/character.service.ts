@@ -268,7 +268,6 @@ export class CharacterService {
     const mainMonth = +Object.keys(daysByMonth).reduce((a, b) =>
       daysByMonth[a] > daysByMonth[b] ? a : b,
     );
-
     const activity = await this.activityRepository.findAllBetweenDateAndDate(
       userId,
       start,
@@ -310,18 +309,26 @@ export class CharacterService {
     /**
      * 이 달의 캐츄를 찾는 작업
      */
-    const monthlyCharacterId = Object.keys(monthlyCharacterCount).reduce(
-      (a, b) => (monthlyCharacterCount[a] > monthlyCharacterCount[b] ? a : b),
-    );
+    const characterIdsForMonthlyCharacter = Object.keys(monthlyCharacterCount);
+    const characterIdsForMonthlyCharacterChecker =
+      characterIdsForMonthlyCharacter.length;
+    let monthlyCharacterId: string, monthlyCharacterData: Character;
+    if (characterIdsForMonthlyCharacterChecker) {
+      monthlyCharacterId = characterIdsForMonthlyCharacter.reduce((a, b) =>
+        monthlyCharacterCount[a] > monthlyCharacterCount[b] ? a : b,
+      );
+      monthlyCharacterData = character[monthlyCharacterId][0];
+    }
 
-    const monthlyCharacterData = character[monthlyCharacterId][0];
-    const monthly = {
-      id: monthlyCharacterData.id,
-      name: monthlyCharacterData.name,
-      type: monthlyCharacterData.type,
-      level: monthlyCharacterData.level,
-      catching: monthlyCharacterCount[monthlyCharacterId],
-    };
+    const monthly = characterIdsForMonthlyCharacterChecker
+      ? {
+          id: monthlyCharacterData.id,
+          name: monthlyCharacterData.name,
+          type: monthlyCharacterData.type,
+          level: monthlyCharacterData.level,
+          catching: monthlyCharacterCount[monthlyCharacterId],
+        }
+      : { id: null, name: null, type: null, level: null, catching: null };
 
     /**
      * 일자별 캐츄를 찾는 작업
