@@ -169,7 +169,7 @@ export default class CharacterRepository
     const characters = await this.prisma.character.findMany({
       select: { id: true, name: true, type: true, level: true },
       orderBy: {
-        created_at: 'asc',
+        created_at: 'desc',
       },
       where: { user_id: userId, is_delete: false },
     });
