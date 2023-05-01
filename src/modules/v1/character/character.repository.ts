@@ -244,6 +244,7 @@ export default class CharacterRepository
         id: {
           in: characterIds,
         },
+        is_public: true,
         is_delete: false,
       },
     });
