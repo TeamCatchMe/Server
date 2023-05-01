@@ -39,10 +39,6 @@ export interface CharacterRepositoryInterface
     is_public: boolean,
   ): Promise<Character>;
 
-  findCharactersWithInfoByUserId(
-    userId: number,
-  ): Promise<CharacterGetFromMainResponseDTO[]>;
-
   findCharactersOrderByMost(userId: number): Promise<CharactersResponseDTO[]>;
   findCharactersOrderByRecent(userId: number): Promise<CharactersResponseDTO[]>;
   findCharactersOrderByBirth(userId: number): Promise<CharactersResponseDTO[]>;
