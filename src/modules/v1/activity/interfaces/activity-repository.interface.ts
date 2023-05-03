@@ -18,6 +18,7 @@ export interface ActivityRepositoryInterface
     limit: number,
   ): Promise<ActivityDataForLookingDTO[]>;
   findAllByCharacterId(characterId: number): Promise<ActivityDto[]>;
+  findAllByUserId(userId: number): Promise<ActivityDto[]>;
   create(
     userId: number,
     characterId: number,

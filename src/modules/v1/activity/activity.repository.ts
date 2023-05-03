@@ -46,6 +46,15 @@ export class ActivityRepository implements ActivityRepositoryInterface {
     });
   }
 
+  async findAllByUserId(userId: number): Promise<ActivityDto[]> {
+    return await this.prisma.activity.findMany({
+      where: {
+        user_id: userId,
+        is_delete: false,
+      },
+    });
+  }
+
   async findAllBetweenDateAndDate(
     userId: number,
     startDate: Date,

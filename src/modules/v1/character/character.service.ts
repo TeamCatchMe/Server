@@ -13,6 +13,7 @@ import {
   BLOCK_REPOSITORY,
 } from '../block/interface/block-repository.interface';
 import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
+import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
 import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import {
@@ -103,10 +104,55 @@ export class CharacterService {
   }
 
   async getCharactersFromMain(userId: number) {
-    const existCharacter =
-      await this.characterRepository.findCharactersWithInfoByUserId(userId);
+    const characters = await this.characterRepository.findAllCharacterByUserId(
+      userId,
+    );
+    const activities = await this.activityRepository.findAllByUserId(userId);
 
-    return existCharacter;
+    // 이후 가공을 위해 조회한 캐릭터의 모든 id 배열과 character Id 를 key 값으로 가지는 객체를 생성한다
+    const characterIds = characters.map((item) => item.id);
+    const characterObj = _.keyBy(characters, 'id');
+
+    // character 별 activity 수를 계산한다
+    const activityCountByCharacter = _.countBy(activities, 'character_id');
+    const totalActivityCount = _.sum(_.values(activityCountByCharacter));
+
+    // activity를 최근 순으로 정렬후, 해당 character_id의 배열을 리턴한다
+    const characterOrder = _.uniqBy(
+      _.orderBy(activities, ['created_at'], ['desc']),
+      'character_id',
+    ).map((item) => {
+      return item.character_id;
+    });
+
+    // activity가 없는 character를 characterOrder에 추가
+    characterOrder.push(..._.difference(characterIds, characterOrder));
+
+    //characterOrder를 돌면서, 해당 순서에 맞게 캐츄 정보를 가공하여 결과를 만들어낸다
+    const result: CharacterGetFromMainResponseDTO[] = characterOrder.reduce(
+      (acc, cur) => {
+        const activity_count = activityCountByCharacter[cur]
+          ? activityCountByCharacter[cur]
+          : 0;
+        const catchu_rate = Math.round(
+          (activity_count / totalActivityCount) * 100,
+        );
+
+        const characterInfo = {
+          id: characterObj[cur].id,
+          name: characterObj[cur].name,
+          type: characterObj[cur].type,
+          level: characterObj[cur].level,
+          activity_count: activityCountByCharacter[cur],
+          catchu_rate: isNaN(catchu_rate) ? 0 : catchu_rate,
+        };
+        acc.push(characterInfo);
+        return acc;
+      },
+      [],
+    );
+
+    return result;
   }
 
   async getCharacters(userId: number, sort: SortType) {
@@ -222,7 +268,6 @@ export class CharacterService {
     const mainMonth = +Object.keys(daysByMonth).reduce((a, b) =>
       daysByMonth[a] > daysByMonth[b] ? a : b,
     );
-
     const activity = await this.activityRepository.findAllBetweenDateAndDate(
       userId,
       start,
@@ -264,18 +309,26 @@ export class CharacterService {
     /**
      * 이 달의 캐츄를 찾는 작업
      */
-    const monthlyCharacterId = Object.keys(monthlyCharacterCount).reduce(
-      (a, b) => (monthlyCharacterCount[a] > monthlyCharacterCount[b] ? a : b),
-    );
+    const characterIdsForMonthlyCharacter = Object.keys(monthlyCharacterCount);
+    const characterIdsForMonthlyCharacterChecker =
+      characterIdsForMonthlyCharacter.length;
+    let monthlyCharacterId: string, monthlyCharacterData: Character;
+    if (characterIdsForMonthlyCharacterChecker) {
+      monthlyCharacterId = characterIdsForMonthlyCharacter.reduce((a, b) =>
+        monthlyCharacterCount[a] > monthlyCharacterCount[b] ? a : b,
+      );
+      monthlyCharacterData = character[monthlyCharacterId][0];
+    }
 
-    const monthlyCharacterData = character[monthlyCharacterId][0];
-    const monthly = {
-      id: monthlyCharacterData.id,
-      name: monthlyCharacterData.name,
-      type: monthlyCharacterData.type,
-      level: monthlyCharacterData.level,
-      catching: monthlyCharacterCount[monthlyCharacterId],
-    };
+    const monthly = characterIdsForMonthlyCharacterChecker
+      ? {
+          id: monthlyCharacterData.id,
+          name: monthlyCharacterData.name,
+          type: monthlyCharacterData.type,
+          level: monthlyCharacterData.level,
+          catching: monthlyCharacterCount[monthlyCharacterId],
+        }
+      : { id: null, name: null, type: null, level: null, catching: null };
 
     /**
      * 일자별 캐츄를 찾는 작업
