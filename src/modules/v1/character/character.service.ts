@@ -358,7 +358,6 @@ export class CharacterService {
     const activity = await this.activityRepository.findByDate(userId, target);
 
     const dailyActivitiesCount: { [key: string]: number } = {};
-
     activity.map((o) => {
       dailyActivitiesCount[o.character_id] =
         (dailyActivitiesCount[o.character_id] || 0) + 1;
@@ -373,17 +372,16 @@ export class CharacterService {
     );
 
     const result: Pick<Character, 'id' | 'name' | 'type' | 'level'>[] =
-      character.reduce((acc, cur) => {
-        const characterData: Pick<Character, 'id' | 'name' | 'type' | 'level'> =
-          {
-            id: cur.id,
-            name: cur.name,
-            type: cur.type,
-            level: cur.level,
-          };
-        acc.push(characterData);
-        return acc;
-      }, []);
+      characterIds.map((characterId) => {
+        const characterInfo = character.find((c) => c.id === characterId);
+        return {
+          id: characterInfo.id,
+          name: characterInfo.name,
+          type: characterInfo.type,
+          level: characterInfo.level,
+        };
+      });
+
     return result;
   }
 }
