@@ -92,7 +92,7 @@ export class ActivityRepository implements ActivityRepositoryInterface {
         },
         id: { lte: id },
         is_delete: false,
-        Character: { is_public: true },
+        Character: { is_public: true, is_delete: false },
       },
       orderBy: { created_at: 'desc' },
       take: limit,

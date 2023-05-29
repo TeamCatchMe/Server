@@ -189,12 +189,11 @@ export class CharacterService {
 
   async getCharactersForLookingList(date: string, activityId: number) {
     const limit = 10;
-    let offsetDate = new Date();
+    let offsetDate = dayjs().toDate();
     let offsetId = 99999999;
 
     if (date) {
       offsetDate = dayjs(date).toDate();
-      console.info(offsetDate);
     }
     if (activityId) {
       offsetId = activityId;
@@ -235,7 +234,6 @@ export class CharacterService {
         return null;
       })
       .filter((item) => item !== null);
-
     return result;
   }
 
