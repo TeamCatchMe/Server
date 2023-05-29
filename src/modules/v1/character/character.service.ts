@@ -252,20 +252,32 @@ export class CharacterService {
     const end = DateUtil.toDate(endDate);
 
     const daysByMonth = {};
-    let currMonth = dayjs(start).clone().startOf('month');
+    let currMonth = dayjs(start).date(1);
+
     while (currMonth.isBefore(end)) {
       const monthDays = currMonth.daysInMonth();
-      const daysInRange = Math.min(
-        monthDays,
-        dayjs(end).diff(currMonth, 'day') + 1,
-      );
-      daysByMonth[currMonth.format('M')] = daysInRange;
+      const startDateOfMonth = currMonth.startOf('month').toDate();
+      const endDateOfMonth = currMonth.endOf('month').toDate();
+
+      const startDay = dayjs(startDateOfMonth).isAfter(start)
+        ? dayjs(startDateOfMonth)
+        : dayjs(start);
+      const endDay = dayjs(endDateOfMonth).isBefore(end)
+        ? dayjs(endDateOfMonth)
+        : dayjs(end);
+
+      const daysInRange = Math.max(endDay.diff(startDay, 'day') + 1, 0);
+
+      daysByMonth[currMonth.format('M')] = Math.min(monthDays, daysInRange);
       currMonth = currMonth.add(1, 'month').startOf('month');
     }
 
     const mainMonth = +Object.keys(daysByMonth).reduce((a, b) =>
       daysByMonth[a] > daysByMonth[b] ? a : b,
     );
+    // console.info('daysByMonth', daysByMonth);
+    // console.info('mainMonth', mainMonth);
+
     const activity = await this.activityRepository.findAllBetweenDateAndDate(
       userId,
       start,
