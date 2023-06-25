@@ -1,4 +1,4 @@
-import { rm } from '@common/constants';
+import { LEVEL, rm } from '@common/constants';
 import { DateUtil } from '@common/libraries/date.util';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { Character } from '@prisma/client';
@@ -6,11 +6,11 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import {
   ActivityRepositoryInterface,
-  ACTIVITY_REPOSITORY,
+  ACTIVITY_REPOSITORY
 } from '../activity/interfaces/activity-repository.interface';
 import {
   BlockRepositoryInterface,
-  BLOCK_REPOSITORY,
+  BLOCK_REPOSITORY
 } from '../block/interface/block-repository.interface';
 import { DailyCharacterDataForCalenderResponseDTO } from './dto/character-get-calender.res.dto';
 import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
@@ -18,7 +18,7 @@ import { CharactersGetLookingResponseDTO } from './dto/characters-get-looking.re
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import {
   CharacterRepositoryInterface,
-  CHARACTER_REPOSITORY,
+  CHARACTER_REPOSITORY
 } from './interfaces/character-repository.interface';
 import { SortType } from './interfaces/sort-type';
 
@@ -395,5 +395,16 @@ export class CharacterService {
       });
 
     return result;
+  }
+
+  async updateCharacterLevel(characterId: number) {
+    const activities = await this.activityRepository.findAllByCharacterId(characterId);
+    const count = activities.length;
+    
+    if (count >= LEVEL.LEVEL_2_ACTIVITY) {
+      this.characterRepository.updateLevel(characterId, LEVEL.LEVEL_2);
+    } else if (count >= LEVEL.LEVEL_3_ACTIVITY) {
+      this.characterRepository.updateLevel(characterId, LEVEL.LEVEL_3);
+    }
   }
 }

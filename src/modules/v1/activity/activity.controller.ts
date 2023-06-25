@@ -18,7 +18,7 @@ import {
   Post,
   Put,
   UploadedFile,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -28,11 +28,12 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
+  ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import dayjs from 'dayjs';
 import CustomParseFormat from 'dayjs/plugin/customParseFormat';
 import { ActivityDateAllGetSuccess } from '../../../common/constants/swagger/domain/activity/ActivityDateAllGetSuccess';
+import { CharacterService } from '../character/character.service';
 import { UserDTO } from '../user/dto/user.dto';
 import { ActivityService } from './activity.service';
 import { ActivityCharacterParamsDTO } from './dto/activity-character.params.dto';
@@ -47,7 +48,10 @@ dayjs.extend(CustomParseFormat);
 @Controller(routesV1.version)
 @ApiBearerAuth('Authorization')
 export class ActivityController {
-  constructor(private readonly activityService: ActivityService) {}
+  constructor(
+    private readonly activityService: ActivityService,
+     private readonly characterService: CharacterService
+    ) {}
 
   @ApiOperation({
     summary: '특정 캐츄의 활동들을 조회합니다.',
@@ -131,6 +135,8 @@ export class ActivityController {
       body.date,
       url,
     );
+
+    this.characterService.updateCharacterLevel(body.character_id);
     return ResponseEntity.CREATED_WITH_DATA(rm.CREATE_ACTIVITY_SUCCESS, data);
   }
 

@@ -18,15 +18,11 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
-  Inject,
-  Logger,
-  LoggerService,
-  Param,
+  Get, Param,
   Patch,
   Post,
   Query,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -36,7 +32,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
-  ApiUnauthorizedResponse,
+  ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { ActivityDateParamsDTO } from '../activity/dto/activity-date.params.dto';
 import { ActivityQueryDTO } from '../activity/dto/activity.query.dto';
@@ -60,7 +56,6 @@ import { SortType } from './interfaces/sort-type';
 export class CharacterController {
   constructor(
     private readonly characterService: CharacterService,
-    @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
   @ApiOperation({

@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Character } from '@prisma/client';
-import dayjs from 'dayjs';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CharacterGetDetailResponseDTO } from './dto/character-get-detail.res.dto';
-import { CharacterGetFromMainResponseDTO } from './dto/character-get-from-main.res.dto';
 import {
-  CharactersGetLookingResponseDTO,
-  FindAllCharactersForLookingDTO,
+  FindAllCharactersForLookingDTO
 } from './dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from './dto/characters.res.dto';
 import { CharacterRepositoryInterface } from './interfaces/character-repository.interface';
@@ -270,6 +267,17 @@ export default class CharacterRepository
           },
         },
       },
+    });
+  }
+
+  async updateLevel(characterId: number, level: number): Promise<void> {
+    await this.prisma.character.update({
+      where: {
+        id: characterId
+      },
+      data: {
+        level
+      }
     });
   }
 }

@@ -1,9 +1,7 @@
 import BaseRepositoryInterface from '@common/interfaces/base-repository.interface';
 import { Character } from '@prisma/client';
-import { CharacterGetFromMainResponseDTO } from '../dto/character-get-from-main.res.dto';
 import {
-  CharactersGetLookingResponseDTO,
-  FindAllCharactersForLookingDTO,
+  FindAllCharactersForLookingDTO
 } from '../dto/characters-get-looking.res.dto';
 import { CharactersResponseDTO } from '../dto/characters.res.dto';
 
@@ -51,4 +49,6 @@ export interface CharacterRepositoryInterface
   ): Promise<FindAllCharactersForLookingDTO[]>;
 
   delete(characterId: number): Promise<void>;
+
+  updateLevel(characterId: number, level: number): Promise<void>;
 }
